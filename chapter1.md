@@ -8,14 +8,14 @@
 在命令式編程\(Imperative programming\)中, 執行緒之間的通信機制有兩種:
 
 * **共享記憶體 \(shared memory\)**: 在此種並發模型裡, 執行緒之間共享程式的公共狀態, 執行緒之間通過讀寫記憶體中的公共狀態來**隱式地**進行通信.
-* 消息傳遞: 執行緒之間沒有公共狀態, 執行緒之間必須通過明確的發送消息來顯式地進行通信.
+* **消息傳遞**: 執行緒之間沒有公共狀態, 執行緒之間必須通過明確的發送消息來**顯式地**進行通信.
 
 同步: 意為程式用於控制不同執行緒之間操作發生的相對順序之機制, 依模型分類如下:
 
 * 共享記憶體\(shared memory model\): 同步是顯式\(explicitly\)進行的, 我們必須顯式地指定某個方法或某段程式需要在執行緒之間互斥執行.
 * 訊息傳遞: 由於訊息的發送必須在訊息的接收之前, 因此同步是隱式\(implicitly\)進行的.
 
-Java Concurrency採用shared memory model, Java thread之間的通信總是隱式地進行.
+**Java Concurrency採用shared memory model, Java thread之間的通信總是隱式地進行.**
 
 ### Java Memory Model的抽象
 
