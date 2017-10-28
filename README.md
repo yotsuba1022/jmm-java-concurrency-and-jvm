@@ -1,3 +1,4 @@
-# My Awesome Book
+# About Java Memory Model
 
-This file file serves as your book's preface, a great place to describe your book's content and ideas.
+在Java Concurrency這個topic中, Java Memory Model \(JMM, a.k.a JSR-133\)扮演著舉足輕重的角色, 這邊就把我讀到的東西整理一下.
+
