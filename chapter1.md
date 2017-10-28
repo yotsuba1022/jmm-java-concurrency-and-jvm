@@ -22,7 +22,7 @@
 * 在Java中, 所有instance field, static field和陣列元素都儲存在heap memory中, heap memory在執行緒之間共享\(以下皆以"共享變數"代表instance field, static field 與陣列元素\).
 * 區域變數\(Local variables\), 方法定義參數\(formal method parameters\)和例外處理器參數\(exception handler parameters\)不會在執行緒之間共享, 它們不會有記憶體能見度的問題, 也不受記憶體模型的影響.
 
-Java執行緒之間的通信由Java記憶體模型\(Java Memory Model, JMM, a.k.a JSR-133\)控制, JMM決定一個執行緒對共享變數的寫入何時對另一個執行緒可見.
+**Java執行緒之間的通信由Java記憶體模型\(Java Memory Model, JMM, a.k.a JSR-133\)控制, JMM決定一個執行緒對共享變數的寫入何時對另一個執行緒可見.**
 
 從抽象的角度來看, JMM定義了執行緒和主記憶體\(main memory\)之間的抽象關係:
 
