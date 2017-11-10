@@ -114,12 +114,10 @@
 * 關於文中提到的: "當讀一個volatile變數時, JMM會把該執行緒對應的區域記憶體置為無效. 執行緒接下來將從主記憶體中讀取共享變數."
   * 在&lt;Java Concurrency in Practice&gt;的3.1.4節, "Volatile Variables"中, 對volatile有如下描述: **Volatile variables are not cached in registers or in caches where they are hidden from other processors, so a read of a volatile variable always returns the most recent write by any thread.**
     這段話的意思是說: volatile變數不會被"快取"在暫存器或是"快取"在對其它處理器不可見的地方, 因此當前執行緒對一個volatile變數的讀, 總是能讀取到任意執行緒對這個volatile變數最後的寫入.
-* 在&lt;JSR-133: Java Memory Model and Thread Specification&gt;的"3. Informal Semantics"
-    以及&lt;The Java Language Specification Third Edition&gt;的"17.4.5 Happens-before Order"中,
-
-    都定義了以下的volatile規則:
+* 在&lt;JSR-133: Java Memory Model and Thread Specification&gt;的"3. Informal Semantics" 以及&lt;The Java Language Specification Third Edition&gt;的"17.4.5 Happens-before Order"中, 都定義了以下的volatile規則:
 
 * Volatile對任意單個volatile變數的讀/寫具有原子性:
+
 * Volatile變數的讀取happens-before volatile變數的寫入, 這是否也是正確的呢?
 
 
