@@ -86,12 +86,13 @@
 * 下圖是在保守策略下, volatile read插入記憶體屏障後生成的指令順序示意圖:  
   上圖中的LoadLoad屏障用來禁止處理器把上面的volatile read與下面的normal read重排序. LoadStore屏障用來禁止處理器把上面的volatile read與下面的normal write重排序.
 
-* 上述volatile write和volatile read的記憶體屏障插入策略非常保守. 在實際執行時, 只要不改變volatile write-read的記憶體語意, 編譯器就可以根據具體情況省略不必要的屏障. 以下通過具體的範例程式來說明:
+* 上述volatile write和volatile read的記憶體屏障插入策略非常保守. 在實際執行時, 只要不改變volatile write-read的記憶體語意, 編譯器就可以根據具體情況省略不必要的屏障. 以下通過具體的範例程式來說明:  
   針對readAndWrite method, 編譯器在生成byte code的時候可以做如下的最佳化:  
   注意, 最後的StoreLoad屏障不能省略. 因為第二個volatile write之後, 方法立刻return. 此時編譯器可能無法準確斷定後面是否會有volatile read/write, 為了安全起見, 編譯器常常會在這裡插入一個StoreLoad屏障.
 
 * 上面的最佳化是針對任意處理器平台, 由於不同的處理器有不同"鬆緊度"的處理器記憶體模型, 記憶體屏障的插入還可以根據具體的處理器記憶體模型繼續最佳化. 以x86處理器為例, 上圖中除了最後的StoreLoad屏障之外, 其它的屏障都會被省略. 故前面保守策略下的volatile read/write, 在x86處理器平台可以最佳化成:
-* 前面的章節提到過, x86處理器僅會對write-read操作進行重排序. 其不會對read-read, read-write與write-write進行重排序,
+
+* 前面的章節提到過, x86處理器僅會對write-read操作進行重排序. 其不會對read-read, read-write與write-write進行重排序, 因此在x86處理器中會省略掉這三種操作類型對應的記憶體屏障. 在x86中, JMM僅需在volatile write後面插入一個StoreLoad屏障即可正確實現volatile write-read的記憶體語意. 這意味著在x86處理器中, volatile write的開銷比volatile read的開銷會大很多\(因為執行StoreLoad屏障開銷會較大\).
 
 ### JSR-133為何要增強volatile的記憶體語意
 
