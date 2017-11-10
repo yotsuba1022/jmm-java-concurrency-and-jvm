@@ -99,6 +99,7 @@
 * 在JSR-133之前的舊JMM中, 雖然不允許volatile變數之間的重排序, 但舊的JMM允許volatile變數與普通變數之間重排序. 在舊的記憶體模型中, VolatileExample3範例程式可能被重排序成下列順序來執行:
   在舊的記憶體模型中, 當1和2之間沒有資料相依性時, 1和2之間就可能被重排序\(3與4類似\). 其結果就是: 執行緒B執行4時, 不一定能看到執行緒A在執行1時對共享變數的修改.
   因此在舊的記憶體模型中, volatile的write-read沒有monitor lock的release-acquire所具有的記憶體語意. 為了提供一種比monitor lock更輕量級的機制以利執行緒之間的通信, JSR-133決定增強volatile的記憶體語意: 嚴格限制編譯器和處理器對volatile變數與普通變數的重排序, 確保volatile的write-read和監視器的release-acquire一樣, 具有相同的記憶體語意. 從編譯器重排序規則和處理器記憶體屏障插入策略來看, 只要volatile變數與普通變數之間的重排序可能會破壞volatile的記憶體語意, 這種重排序就會被編譯器重排序規則和處理器記憶體屏障插入策略禁止.
+  由於volatile僅僅保證對單個volatile變數的read/write具有原子性, 而monitor lock的互斥執行之特性可以確保對整個臨界區程式的執行具有原子性. 在功能上, monitor lock比volatile更強大; 在可伸縮性與執行性能上, volatile更有優勢. 若要在程式中使用volatile, 請務必謹慎.
 
 ### 結論
 
