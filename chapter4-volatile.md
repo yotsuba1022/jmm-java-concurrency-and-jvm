@@ -12,12 +12,13 @@
 
 * Monitor lock的happens-before規則保證釋放monitor和獲取monitor的兩個執行緒之間的記憶體可見性, 這意味著對一個volatile變數的讀, 總是能看到\(任意執行緒\)對這個volatile變數最後的寫入.
 
-* Monitor lock的語意決定了臨界區\(critical region\)的執行具有原子性. 這意味著即使是64-bit的long/double變數, 只要其為volatile變數, 對該變數的讀寫就將具有原子性. 倘若是多個volatile操作或類似於volatile++這種複合操作, 這些操作整體上就不具有原子性了.
+* Monitor lock的語意決定了臨界區\(critical region\)的執行具有原子性. 這意味著**即使是64-bit的long/double變數, 只要其為volatile變數, 對該變數的讀寫就將具有原子性**. **倘若是多個volatile操作或類似於volatile++這種複合操作, 這些操作整體上就不具有原子性了.**
+
 * 簡單來說, volatile變數本身具有下列特性:
-  * 可見性\(visibility\): 對一個volatile變數的讀, 總是能看到\(任意執行緒\)對這個volatile變數最後的寫入.
-  * 原子性\(atomicity\): 對任意單個volatile變數的讀/寫具有原子性, 但對於volatile++這種複合操作就不具備原子性.
+  * 可見性\(**visibility**\): 對一個volatile變數的讀, 總是能看到\(任意執行緒\)對這個volatile變數最後的寫入.
+  * 原子性\(**atomicity**\): 對任意單個volatile變數的讀/寫具有原子性, 但對於volatile++這種複合操作就不具備原子性.
 * 副作用
-  * 在Java裡, volatile關鍵字有一個副作用: 刷新快取\(flush the cache\), 以便所有其它地方看到資料的最新版本, 這在大多數情況下其實是很嚴格的, 但這種副作用, 在某些時候也可以用來保障可見性, 這種情況常被稱為"Piggyback", 在下一章節\(Lock\)中, 就可以看到應用此副作用的地方\(CAS\).
+  * 在Java裡, volatile關鍵字有一個副作用: **刷新快取\(flush the cache\), 以便所有其它地方看到資料的最新版本**, 這在大多數情況下其實是很嚴格的, 但這種副作用, 在某些時候也可以用來保障可見性, 這種情況常被稱為"Piggyback", 在下一章節\(Lock\)中, 就可以看到應用此副作用的地方\(CAS\).
 
 ### volatile寫入-讀取建立的happens-before關係
 
@@ -52,7 +53,9 @@
     如上圖所示, 執行緒A在寫入flag變數後, 區域記憶體A中被執行緒A更新過的兩個共享變數的值被更新到主記憶體中. 此時, 區域記憶體A和主記憶體中的共享變數的值是一致的.
 
 * volatile read的記憶體語意如下:
+
   * 當讀一個volatile變數時, JMM會把該執行緒對應的區域記憶體置為無效. 執行緒接下來將從主記憶體中讀取共享變數.
+
 * 以下是執行緒B讀同一個volatile變數後, 共享變數的狀態示意圖:  
   ![](/assets/jmm-28.png)  
   如上圖所示, 在讀取flag變數後, 區域記憶體B已經被置為無效. 此時, 執行緒B必須從主記憶體中讀取共享變數. 執行緒B的讀取操作將導致區域記憶體B與主記憶體中的共享變數的值同步.
