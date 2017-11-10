@@ -41,10 +41,11 @@
     如上圖所示, 執行緒A在寫入flag變數後, 區域記憶體A中被執行緒A更新過的兩個共享變數的值被更新到主記憶體中. 此時, 區域記憶體A和主記憶體中的共享變數的值是一致的.
 * volatile read的記憶體語意如下:
   * 當讀一個volatile變數時, JMM會把該執行緒對應的區域記憶體置為無效. 執行緒接下來將從主記憶體中讀取共享變數.
-* 以下是執行緒B讀同一個volatile變數後, 共享變數的狀態示意圖:
+* 以下是執行緒B讀同一個volatile變數後, 共享變數的狀態示意圖:  
   如上圖所示, 在讀取flag變數後, 區域記憶體B已經被置為無效. 此時, 執行緒B必須從主記憶體中讀取共享變數. 執行緒B的讀取操作將導致區域記憶體B與主記憶體中的共享變數的值同步.
 
 * 若此處把volatile寫和volatile讀這兩個步驟綜合起來看, 在執行緒B讀取一個volatile變數後, 執行緒A在寫這個volatile變數之前的所有可見的共享變數的值, 都將會立即變得對執行緒B可見.
+
 * 下面對volatile write/read的記憶體語意做個總結:
   * 執行緒A寫一個volatile變數, 實質上是執行緒A向接下來將要讀這個volatile變數的某個執行緒發出了\(其對共享變數所在修改的\)訊息.
   * 執行緒B讀一個volatile變數, 實質上是執行緒B接收了之前某個執行緒發出的\(在寫這個volatile變數之前對共享變數所做修改的\)訊息.
@@ -52,25 +53,35 @@
 
 ### volatile記憶體語意的實作
 
-* 再來, 看看JMM如何實作volatile write/read的記憶體語意, 在前面的章節中有提到過重排序分為編譯器重排序與處理器重排序.
+* 再來, 看看JMM如何實作volatile write/read的記憶體語意, 在前面的章節中有提到過重排序分為編譯器重排序與處理器重排序.  
   為了實現volatile記憶體語意, JMM會分別限制這兩種類型的重排序類型. 下圖是JMM針對編譯器制定的volatile重排序規則表:  
   舉例來說, 當程式順序中, 第一個操作為普通變數的讀/寫時, 若第二個操作為volatile write, 則編譯器不能重排序這兩個操作.
 
 * 從上表我們可以看出:
+
   * 當第二個操作是volatile write時, 不管第一個操作是什麼, 都不能重排序. 這個規則確保volatile write之前的操作不會被編譯器重排序到volatile write之後.
   * 當第一個操作是volatile read時, 不管第二個操作是什麼, 都不能重排序. 這個規則確保volatile read之後的操作不會被編譯器重排序到volatile read之前.
   * 當第一個操作是volatile write, 第二個操作是volatile read時, 不能重排序.
+
 * 為了實現volatile的記憶體語意, 編譯器在生成byte code時, 會在指令序列中插入記憶體屏障來禁止特定類型的處理器重排序. 對於編譯器來說, 發現一個最佳佈局來最小化插入屏障的總數幾乎不可能, 為此, JMM採取保守策略. 以下是基於保守策略的JMM記憶體屏障插入策略:
+
   * 在每個volatile write操作的前面插入一個StoreStore屏障
 
   * 在每個volatile write操作的後面插入一個StoreLoad屏障
 
   * 在每個volatile read操作的後面插入一個LoadLoad屏障
 
-  * 在每個volatile read操作的後面插入一個LoadStore屏障  
-  
+  * 在每個volatile read操作的後面插入一個LoadStore屏障
+
     上述的記憶體屏障插入策略非常保守, 但其可以保證在任意處理器平台, 任意的程式中都能得到正確的volatile記憶體語意.
+
 * 下圖是保守策略下, volatile write插入記憶體屏障後生成的指令順序示意圖:
+  上圖中的StoreStore屏障可以保證在volatile write之前, 其前面的所有normal write操作已經對任意處理器可見了. 這是因為StoreStore屏障將保障上面所有的normal write在volatile write之前更新到主記憶體.  
+  
+  這裡的一個小亮點是volatile write後面的StoreLoad屏障. 這個屏障的作用是避免volatile write與後面可能有的volatile read/write操作重排序. 因為編譯器常常無法準確判斷在一個volatile write的後面, 是否需要插入一個StoreLoad屏障\(譬如, 一個volatile write之後方法立刻return\). 為了保證能正確實現volatile的記憶體語意, JMM在這裡採取了保守策略: 在每個volatile write的後面或在每個volatile read的前面插入一個StoreLoad屏障. 從整體執行效率的角度考慮, JMM選擇了在每個volatile write的後面插入一個StoreLoad屏障.
+
+  因為volatile write-read記憶體語意的常見使用模式是: 一個執行緒寫volatile變數, 多個執行緒讀取這個volatile變數. 當讀取的執行緒數量大大超過寫入的執行緒時, 選擇在volatile write之後插入StoreLoad屏障將帶來可觀的執行效率之提升. 從這裡我們可以看到JMM在實現上的一個特點: 首先確保正確性, 然後才去追求執行效率.
+
 * 下圖是在保守策略下, volatile read插入記憶體屏障後生成的指令順序示意圖:
 * 上述volatile write和volatile read的記憶體屏障插入策略非常保守. 在實際執行時, 只要不改變volatile write-read的記憶體語意, 編譯器就可以根據具體情況省略不必要的屏障. 以下通過具體的範例程式來說明:
 * 上面的最佳化是針對任意處理器平台, 由於不同的處理器有不同"鬆緊度"的處理器記憶體模型, 記憶體屏障的插入還可以根據具體的處理器記憶體模型繼續最佳化. 以x86處理器為例, 上圖中除了最後的StoreLoad屏障之外, 其它的屏障都會被省略. 故前面保守策略下的volatile read/write, 在x86處理器平台可以最佳化成:
