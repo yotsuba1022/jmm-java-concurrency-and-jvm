@@ -126,5 +126,7 @@
 
 * Volatile變數的讀取happens-before volatile變數的寫入, 這是否也是正確的呢?
 
+  * 不正確, JMM沒有保證這種行為. 具體的原因, 可以參考volatile的編譯器重排序規則表與volatile的記憶體屏障插入策略. volatile的編譯器重排序規則表和volatile的記憶體屏障插入策略都是針對volatile變數的寫入happens-before volatile變數的讀取來設計的. JMM將其設計成這樣, 就是為了讓volatile的寫-讀可以實現執行緒之間的記憶體可見性通信.
+
 
 
