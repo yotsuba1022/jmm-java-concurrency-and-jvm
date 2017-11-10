@@ -2,14 +2,16 @@
 
 ### volatile的特性
 
-* 當我們宣告共享變數為volatile後, 對這個變數的讀/寫就會變得比較特別. 理解volatile特性的一個好方法是: 把對volatile變數的單個讀/寫, 看成是使用同一個monitor lock對這些單個讀/寫操作做了同步.以下通過具體的範例來說明, 首先是範例程式:
+* 當我們宣告共享變數為volatile後, 對這個變數的讀/寫就會變得比較特別. 理解volatile特性的一個好方法是: **把對volatile變數的單個讀/寫, 看成是使用同一個monitor lock對這些單個讀/寫操作做了同步**.以下通過具體的範例來說明, 首先是範例程式:  
   ![](/assets/jmm-23.png)
 
-* 假設有多個執行緒分別呼叫上面範例的三個方法, 那這個程式在語意上和下面這個範例程式是等價的:
+* 假設有多個執行緒分別呼叫上面範例的三個方法, 那這個程式在語意上和下面這個範例程式是等價的:  
   ![](/assets/jmm-24.png)
 
 * 如上面範例程式所示, 對一個volatile變數的單個讀/寫操作, 與對一個普通變數的讀/寫操作使用同一個monitor lock來同步, 其之間的執行效果是相同的.
+
 * Monitor lock的happens-before規則保證釋放monitor和獲取monitor的兩個執行緒之間的記憶體可見性, 這意味著對一個volatile變數的讀, 總是能看到\(任意執行緒\)對這個volatile變數最後的寫入.
+
 * Monitor lock的語意決定了臨界區\(critical region\)的執行具有原子性. 這意味著即使是64-bit的long/double變數, 只要其為volatile變數, 對該變數的讀寫就將具有原子性. 倘若是多個volatile操作或類似於volatile++這種複合操作, 這些操作整體上就不具有原子性了.
 * 簡單來說, volatile變數本身具有下列特性:
   * 可見性\(visibility\): 對一個volatile變數的讀, 總是能看到\(任意執行緒\)對這個volatile變數最後的寫入.
@@ -42,11 +44,13 @@
 ### volatile寫入-讀取的記憶體語意
 
 * volatile write的記憶體語意如下:
-  * 當寫入一個volatile變數時, JMM會把該執行緒對應的區域記憶體中的共享變數更新到主記憶體中. 以上面的範例程式VolatileExample3為例, 假設執行緒A首先執行write方法, 隨後執行緒B執行read方法,
+
+  * 當寫入一個volatile變數時, JMM會把該執行緒對應的區域記憶體中的共享變數更新到主記憶體中. 以上面的範例程式VolatileExample3為例, 假設執行緒A首先執行write方法, 隨後執行緒B執行read方法,  
     初始時兩個執行緒的區域記憶體中的flag和a都是初始狀態. 下圖是執行緒A執行volatile write後, 共享變數的狀態示意圖:  
     ![](/assets/jmm-27.png)
 
     如上圖所示, 執行緒A在寫入flag變數後, 區域記憶體A中被執行緒A更新過的兩個共享變數的值被更新到主記憶體中. 此時, 區域記憶體A和主記憶體中的共享變數的值是一致的.
+
 * volatile read的記憶體語意如下:
   * 當讀一個volatile變數時, JMM會把該執行緒對應的區域記憶體置為無效. 執行緒接下來將從主記憶體中讀取共享變數.
 * 以下是執行緒B讀同一個volatile變數後, 共享變數的狀態示意圖:  
@@ -111,11 +115,11 @@
 
 ### JSR-133為何要增強volatile的記憶體語意
 
-* 在JSR-133之前的舊JMM中, 雖然不允許volatile變數之間的重排序, 但舊的JMM允許volatile變數與普通變數之間重排序. 在舊的記憶體模型中, VolatileExample3範例程式可能被重排序成下列順序來執行:
+* 在JSR-133之前的舊JMM中, 雖然不允許volatile變數之間的重排序, 但舊的JMM允許volatile變數與普通變數之間重排序. 在舊的記憶體模型中, VolatileExample3範例程式可能被重排序成下列順序來執行:  
   ![](/assets/jmm-35.png)
 
-  在舊的記憶體模型中, 當1和2之間沒有資料相依性時, 1和2之間就可能被重排序\(3與4類似\). 其結果就是: 執行緒B執行4時, 不一定能看到執行緒A在執行1時對共享變數的修改.
-  因此在舊的記憶體模型中, volatile的write-read沒有monitor lock的release-acquire所具有的記憶體語意. 為了提供一種比monitor lock更輕量級的機制以利執行緒之間的通信, JSR-133決定增強volatile的記憶體語意: 嚴格限制編譯器和處理器對volatile變數與普通變數的重排序, 確保volatile的write-read和監視器的release-acquire一樣, 具有相同的記憶體語意. 從編譯器重排序規則和處理器記憶體屏障插入策略來看, 只要volatile變數與普通變數之間的重排序可能會破壞volatile的記憶體語意, 這種重排序就會被編譯器重排序規則和處理器記憶體屏障插入策略禁止.
+  在舊的記憶體模型中, 當1和2之間沒有資料相依性時, 1和2之間就可能被重排序\(3與4類似\). 其結果就是: 執行緒B執行4時, 不一定能看到執行緒A在執行1時對共享變數的修改.  
+  因此在舊的記憶體模型中, volatile的write-read沒有monitor lock的release-acquire所具有的記憶體語意. 為了提供一種比monitor lock更輕量級的機制以利執行緒之間的通信, JSR-133決定增強volatile的記憶體語意: 嚴格限制編譯器和處理器對volatile變數與普通變數的重排序, 確保volatile的write-read和監視器的release-acquire一樣, 具有相同的記憶體語意. 從編譯器重排序規則和處理器記憶體屏障插入策略來看, 只要volatile變數與普通變數之間的重排序可能會破壞volatile的記憶體語意, 這種重排序就會被編譯器重排序規則和處理器記憶體屏障插入策略禁止.  
   由於volatile僅僅保證對單個volatile變數的read/write具有原子性, 而monitor lock的互斥執行之特性可以確保對整個臨界區程式的執行具有原子性. 在功能上, monitor lock比volatile更強大; 在可伸縮性與執行性能上, volatile更有優勢. 若要在程式中使用volatile, 請務必謹慎.
 
 ### 結論
