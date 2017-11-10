@@ -15,6 +15,21 @@
 
 ### volatile寫入-讀取建立的happens-before關係
 
+* 上面提到的是volatile變數自身的特性, 對開發者來說, volatile對執行緒的記憶體可見性的影響比volatile自身的特性更為重要, 也更需要我們去關注. 從JSR-133開始, volatile變數的寫-讀可以實現執行緒之間的通信.
+* 從記憶體語意的角度來說 我們可以觀察到以下對應關係:
+  * volatile與monitor lock有相同的效果
+  * volatile寫與monitor lock的釋放有相同的記憶體語意
+  * volatile讀與monitor lock的獲取有相同的記憶體語意
+* 以下程式片段是使用volatile變數的範例程式:
+  * 假設執行緒A執行write method之後, 執行緒B才執行read method. 根據happens before規則, 這個過程建立的happens before關係可以分為兩類:
+
+          1. 根據程式順序規則, 1 happens before 2; 3 happens before 4.
+          2. 根據volatile規則, 2 happens before 3.  
+          3. 根據上述兩條happens before規則與遞移律, 1 happens before 4.
+
+* 上述happens before關係的圖形化表現形式如下:
+* 這裡執行緒A寫一個volatile變數後, 執行緒B讀同一個volatile變數. 執行緒A在寫volatile變數之前的所有可見的共享變數, 在B執行緒讀同一個volatile變數後, 就會立即變得對執行緒B可見.
+
 ### volatile寫入-讀取的記憶體語意
 
 ### volatile記憶體語意的實作
