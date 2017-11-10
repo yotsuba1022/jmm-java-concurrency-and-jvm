@@ -47,6 +47,7 @@
 * 若此處把volatile寫和volatile讀這兩個步驟綜合起來看, 在執行緒B讀取一個volatile變數後, 執行緒A在寫這個volatile變數之前的所有可見的共享變數的值, 都將會立即變得對執行緒B可見.
 
 * 下面對volatile write/read的記憶體語意做個總結:
+
   * 執行緒A寫一個volatile變數, 實質上是執行緒A向接下來將要讀這個volatile變數的某個執行緒發出了\(其對共享變數所在修改的\)訊息.
   * 執行緒B讀一個volatile變數, 實質上是執行緒B接收了之前某個執行緒發出的\(在寫這個volatile變數之前對共享變數所做修改的\)訊息.
   * 執行緒A寫一個volatile變數, 隨後執行緒B讀這個volatile變數, 這個過程實質上是執行緒A通過主記憶體向執行緒B發送訊息.
@@ -75,15 +76,20 @@
 
     上述的記憶體屏障插入策略非常保守, 但其可以保證在任意處理器平台, 任意的程式中都能得到正確的volatile記憶體語意.
 
-* 下圖是保守策略下, volatile write插入記憶體屏障後生成的指令順序示意圖:
-  上圖中的StoreStore屏障可以保證在volatile write之前, 其前面的所有normal write操作已經對任意處理器可見了. 這是因為StoreStore屏障將保障上面所有的normal write在volatile write之前更新到主記憶體.  
-  
+* 下圖是保守策略下, volatile write插入記憶體屏障後生成的指令順序示意圖:  
+  上圖中的StoreStore屏障可以保證在volatile write之前, 其前面的所有normal write操作已經對任意處理器可見了. 這是因為StoreStore屏障將保障上面所有的normal write在volatile write之前更新到主記憶體.
+
   這裡的一個小亮點是volatile write後面的StoreLoad屏障. 這個屏障的作用是避免volatile write與後面可能有的volatile read/write操作重排序. 因為編譯器常常無法準確判斷在一個volatile write的後面, 是否需要插入一個StoreLoad屏障\(譬如, 一個volatile write之後方法立刻return\). 為了保證能正確實現volatile的記憶體語意, JMM在這裡採取了保守策略: 在每個volatile write的後面或在每個volatile read的前面插入一個StoreLoad屏障. 從整體執行效率的角度考慮, JMM選擇了在每個volatile write的後面插入一個StoreLoad屏障.
 
   因為volatile write-read記憶體語意的常見使用模式是: 一個執行緒寫volatile變數, 多個執行緒讀取這個volatile變數. 當讀取的執行緒數量大大超過寫入的執行緒時, 選擇在volatile write之後插入StoreLoad屏障將帶來可觀的執行效率之提升. 從這裡我們可以看到JMM在實現上的一個特點: 首先確保正確性, 然後才去追求執行效率.
 
-* 下圖是在保守策略下, volatile read插入記憶體屏障後生成的指令順序示意圖:
+* 下圖是在保守策略下, volatile read插入記憶體屏障後生成的指令順序示意圖:  
+  上圖中的LoadLoad屏障用來禁止處理器把上面的volatile read與下面的normal read重排序. LoadStore屏障用來禁止處理器把上面的volatile read與下面的normal write重排序.
+
 * 上述volatile write和volatile read的記憶體屏障插入策略非常保守. 在實際執行時, 只要不改變volatile write-read的記憶體語意, 編譯器就可以根據具體情況省略不必要的屏障. 以下通過具體的範例程式來說明:
+  針對readAndWrite method, 編譯器在生成byte code的時候可以做如下的最佳化:  
+  注意, 最後的StoreLoad屏障不能省略. 因為第二個volatile write之後, 方法立刻return. 此時編譯器可能無法準確斷定後面是否會有volatile read/write, 為了安全起見, 編譯器常常會在這裡插入一個StoreLoad屏障.
+
 * 上面的最佳化是針對任意處理器平台, 由於不同的處理器有不同"鬆緊度"的處理器記憶體模型, 記憶體屏障的插入還可以根據具體的處理器記憶體模型繼續最佳化. 以x86處理器為例, 上圖中除了最後的StoreLoad屏障之外, 其它的屏障都會被省略. 故前面保守策略下的volatile read/write, 在x86處理器平台可以最佳化成:
 * 前面的章節提到過, x86處理器僅會對write-read操作進行重排序. 其不會對read-read, read-write與write-write進行重排序,
 
