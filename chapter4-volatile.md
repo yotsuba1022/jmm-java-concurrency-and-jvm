@@ -15,14 +15,17 @@
 * Monitor lock的語意決定了臨界區\(critical region\)的執行具有原子性. 這意味著**即使是64-bit的long/double變數, 只要其為volatile變數, 對該變數的讀寫就將具有原子性**. **倘若是多個volatile操作或類似於volatile++這種複合操作, 這些操作整體上就不具有原子性了.**
 
 * 簡單來說, volatile變數本身具有下列特性:
+
   * 可見性\(**visibility**\): 對一個volatile變數的讀, 總是能看到\(任意執行緒\)對這個volatile變數最後的寫入.
   * 原子性\(**atomicity**\): 對任意單個volatile變數的讀/寫具有原子性, 但對於volatile++這種複合操作就不具備原子性.
+
 * 副作用
   * 在Java裡, volatile關鍵字有一個副作用: **刷新快取\(flush the cache\), 以便所有其它地方看到資料的最新版本**, 這在大多數情況下其實是很嚴格的, 但這種副作用, 在某些時候也可以用來保障可見性, 這種情況常被稱為"Piggyback", 在下一章節\(Lock\)中, 就可以看到應用此副作用的地方\(CAS\).
 
 ### volatile寫入-讀取建立的happens-before關係
 
 * 上面提到的是volatile變數自身的特性, 對開發者來說, volatile對執行緒的記憶體可見性的影響比volatile自身的特性更為重要, 也更需要我們去關注. 從JSR-133開始, volatile變數的寫-讀可以實現執行緒之間的通信.
+
 * 從記憶體語意的角度來說 我們可以觀察到以下對應關係:
   * volatile與monitor lock有相同的效果
   * volatile寫與monitor lock的釋放有相同的記憶體語意
