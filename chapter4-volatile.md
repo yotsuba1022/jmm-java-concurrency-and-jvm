@@ -114,11 +114,15 @@
 * 關於文中提到的: "當讀一個volatile變數時, JMM會把該執行緒對應的區域記憶體置為無效. 執行緒接下來將從主記憶體中讀取共享變數."
   * 在&lt;Java Concurrency in Practice&gt;的3.1.4節, "Volatile Variables"中, 對volatile有如下描述: **Volatile variables are not cached in registers or in caches where they are hidden from other processors, so a read of a volatile variable always returns the most recent write by any thread.**
     這段話的意思是說: volatile變數不會被"快取"在暫存器或是"快取"在對其它處理器不可見的地方, 因此當前執行緒對一個volatile變數的讀, 總是能讀取到任意執行緒對這個volatile變數最後的寫入.
-* 在&lt;JSR-133: Java Memory Model and Thread Specification&gt;的"3. Informal Semantics" 以及&lt;The Java Language Specification Third Edition&gt;的"17.4.5 Happens-before Order"中, 都定義了以下的volatile規則:  
-  **A write to a volatile field happens-before every subsequent read of that volatile.**  
-  意思是說: 對一個volatile field的寫入, happens-before於任意後續對這個volatile field的讀取. 要注意的是, volatile規則需要一個前提: \(一個執行緒\)寫一個volatile變數之後, \(任意執行緒\)讀取這個volatile變數.
+* 在&lt;JSR-133: Java Memory Model and Thread Specification&gt;的"3. Informal Semantics" 以及&lt;The Java Language Specification Third Edition&gt;的"17.4.5 Happens-before Order"中, 都定義了以下的volatile規則:
+
+  * **A write to a volatile field happens-before every subsequent read of that volatile.**  
+    意思是說: 對一個volatile field的寫入, happens-before於任意後續對這個volatile field的讀取. 要注意的是, volatile規則需要一個前提: \(一個執行緒\)寫一個volatile變數之後, \(任意執行緒\)讀取這個volatile變數.
 
 * Volatile對任意單個volatile變數的讀/寫具有原子性:
+
+  * 在&lt;The Java Language Specification Java SE 7 Edition&gt;的17.7章, 有以下描述: **a single write to a non-volatile long or double value is treated as two separate writes. Writes and reads of volatile long and double values are always atomic.**  
+    其實這也就是說, Java語言規範不保證對long/double的寫入具有原子性, 但當我們把long/double宣告為volatile後, 對這個變數的寫入就會具有原子性了.
 
 * Volatile變數的讀取happens-before volatile變數的寫入, 這是否也是正確的呢?
 
