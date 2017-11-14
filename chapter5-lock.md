@@ -33,6 +33,7 @@
 * ReentrantLock的實作依賴於java synchronizer framework - AbstractQueuedSynchronizer \(下文簡稱AQS\). AQS使用一個整數型態的volatile變數\(其被命名為state\)來維護同步狀態, 稍後也會在JDK的原始碼中看到這個volatile變數是如何扮演實現ReentrantLock記憶體語意實作的關鍵.
 
 * 下圖是ReentrantLock的class diagram \(僅畫出與本文相關的部分\):
+
 * 額外附贈一張IntelliJ產生的精美簡圖\(絕非業配文\):
 * ReentrantLock分為公平鎖\(fair\)與非公平鎖\(non-fair\), 首先分析公平鎖:
 
@@ -46,6 +47,8 @@
     從上面的原始碼可以看出, 上鎖之前首先要讀取volatile變數state.
 
   * 使用公平鎖時, 解鎖的方法unlock\(\)之invoke trace如下:
+
+          1. ReentrantLock: unlock\(\)
 
   * 公平鎖在釋放鎖的最後寫volatile變數state; 在獲取鎖時首先讀這個volatile變數. 根據volatile的happens-before規則, 釋放鎖的執行緒在寫volatile變數之前可見的共享變數, 在獲取鎖的執行緒讀取同一個volatile變數後, 將立刻變得對獲取鎖的執行緒可見.
 
