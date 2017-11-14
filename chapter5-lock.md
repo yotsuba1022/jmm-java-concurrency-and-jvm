@@ -59,6 +59,12 @@
 
 * 現在再來看看非公平鎖的記憶體語意之實作
 
+  * 非公平鎖的釋放和公平鎖是一樣的, 故此處僅分析非公平鎖的獲取. 使用非公平鎖時, 加鎖方法lock\(\)之invoke trace如下:  
+    1. ReentrantLock: lock\(\)  
+    2. NonfairSync: lock\(\)  
+    3. AbstractQueuedSynchronizer: compareAndSetState\(int expect, int update\)  
+  
+
 ### Concurrent Package的實作
 
 
