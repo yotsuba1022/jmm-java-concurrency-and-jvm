@@ -67,6 +67,28 @@
     在第3步真正開始上鎖, 以下是該方法的原始碼:  
     該方法以原子操作的方式更新state變數, 本文把java的compareAndSet\(\)方法簡稱為CAS. 根據JDK對該方法的說明: 如果當前狀態值等於預期值, 則以原子方式將同步狀態設置為給定的更新值. 此操作具有volatile讀/寫的記憶體語意.
 
+  * 這裡我們分別從編譯器和處理器的角度來分析, CAS如何同時具有volatile讀與volatile寫的記憶體語意.
+
+  * 在之前的章節有提到過以下兩點:
+
+    * 編譯器不會對volatile讀與volatile讀後面的任意記憶體操作進行重排序
+
+    * 編譯器不會對volatile寫與volatile寫前面的任意記憶體操作進行重排序
+
+    * 組合以上兩個條件, 意味著為了同時實現volatile讀/寫的記憶體語意, 編譯器不能對CAS與CAS前面與後面的任意記憶體操作進行重排序.
+
+  * 下面再來看看在常見的intel x86處理器裡, CAS是如何同時具有volatile讀/寫的記憶體語意的
+
+  * 以下是sum.misc.Unsafe class的compareAndSwapInt\(\)方法的原始碼:  
+    可以看到這是個native method invocation. 這個native method在openjdk依次呼叫的c++程式為:  
+    1. unsafe.cpp  
+    2. atomic.cpp  
+    3. atomicwindowsx86.inline.hpp  
+    這個native method的最終實現如下:  
+    如上面的原始碼所示, 程式會根據當前處理器的類型來決定是否為cmpxchg指令添加lock prefix.
+
+  * Intel的手冊對lock prefix的說明如下:
+
 ### Concurrent Package的實作
 
 
