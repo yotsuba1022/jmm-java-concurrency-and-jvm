@@ -64,7 +64,8 @@
     2. NonfairSync: lock\(\)  
     3. AbstractQueuedSynchronizer: compareAndSetState\(int expect, int update\)
 
-      在第3步真正開始上鎖, 以下是該方法的原始碼:
+    在第3步真正開始上鎖, 以下是該方法的原始碼:  
+    該方法以原子操作的方式更新state變數, 本文把java的compareAndSet\(\)方法簡稱為CAS. 根據JDK對該方法的說明: 如果當前狀態值等於預期值, 則以原子方式將同步狀態設置為給定的更新值. 此操作具有volatile讀/寫的記憶體語意.
 
 ### Concurrent Package的實作
 
