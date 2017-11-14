@@ -50,9 +50,10 @@
   * 使用公平鎖時, 解鎖的方法unlock\(\)之invoke trace如下:  
     1. ReentrantLock: unlock\(\)  
     2. AbstractQueuedSynchronizer: release\(int arg\)  
-    3. Sync: tryRelease\(int releases\)  
-  
-    在第3步真正開始釋放鎖, 以下是該方法的原始碼:
+    3. Sync: tryRelease\(int releases\)
+
+    在第3步真正開始釋放鎖, 以下是該方法的原始碼:  
+    從上面的原始碼可以看出, 解鎖的最後要寫volatile變數state.
 
   * 公平鎖在釋放鎖的最後寫volatile變數state; 在獲取鎖時首先讀這個volatile變數. 根據volatile的happens-before規則, 釋放鎖的執行緒在寫volatile變數之前可見的共享變數, 在獲取鎖的執行緒讀取同一個volatile變數後, 將立刻變得對獲取鎖的執行緒可見.
 
