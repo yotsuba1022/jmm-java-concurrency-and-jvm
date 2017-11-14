@@ -84,6 +84,7 @@
     1. unsafe.cpp  
     2. atomic.cpp  
     3. atomicwindowsx86.inline.hpp  
+  
     這個native method的最終實現如下:  
     如上面的原始碼所示, 程式會根據當前處理器的類型來決定是否為cmpxchg指令添加lock prefix.
 
