@@ -116,5 +116,13 @@
 
 ### Concurrent Package的實作
 
+* 由於java的CAS同時具有volatile read/write的記憶體語意, 因此Java執行緒之間的通信現在有了以下四種方式:
+  * A執行緒寫volatile變數, 隨後B執行緒讀取此volatile變數.
+  * A執行緒寫volatile變數, 隨後B執行緒用CAS更新這個volatile變數.
+  * A執行緒用CAS更新一個volatile變數, 隨後B執行緒用CAS更新這個volatile變數.
+  * A執行緒用CAS更新一個volatile變數, 隨後B執行緒讀取這個volatile變數.
+* Java的CAS會使用現代處理器上提供的高效機器級別原子指令, 這些原子指令以原子方式對記憶體執行讀-改-寫操作, 這是在多處理器中實現同步的關鍵\(從本質上來講, 能夠支持原子性讀-改-寫指令的計算機, 是順序計算圖靈機的非同步等價機器, 因此任何現代的多處理器都會去支持某種能對記憶體執行原子性讀-改-寫操作的原子指令\). 同時, volatile變數的read/write和CAS可以實現執行緒之間的通信. 把這些特性整合在一起, 就形成了整個concurrent package得以實現的基石. 如果仔細分析concurrent package的原始碼實作, 會發現一個通用化的實作模式:
+* AQS, non-blocking data structure和atomic變數類別\(java.util.concurrent.atomic package中的class\), 這些concurrent package中的基礎類別都是使用這種模式來實作的, 而concurrent package中的高階類別又是依賴於這些基礎來實作的. 從整體來看, concurrent package的實作示意圖如下:
+
 
 
