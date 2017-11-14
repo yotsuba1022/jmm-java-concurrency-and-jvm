@@ -83,12 +83,36 @@
     可以看到這是個native method invocation. 這個native method在openjdk依次呼叫的c++程式為:  
     1. unsafe.cpp  
     2. atomic.cpp  
-    3. atomicwindowsx86.inline.hpp  
-  
+    3. atomicwindowsx86.inline.hpp
+
     這個native method的最終實現如下:  
-    如上面的原始碼所示, 程式會根據當前處理器的類型來決定是否為cmpxchg指令添加lock prefix.
+    \[[part 1](https://github.com/JetBrains/jdk8u_hotspot/blob/master/src/os_cpu/windows_x86/vm/atomic_windows_x86.inline.hpp#L62-L69)\]  
+    \[[part 2](https://github.com/JetBrains/jdk8u_hotspot/blob/master/src/os_cpu/windows_x86/vm/atomic_windows_x86.inline.hpp#L216-L226)\]  
+    如上面的原始碼所示, 程式會根據當前處理器的類型來決定是否為cmpxchg指令添加lock prefix. 如果程式是在多處理器上運行, 就為cmpxchg指令加上lock prefix \(lock cmpxchg\). 反之, 若程式是在單處理器上運行, 就省略lock prefix \(單處理器本身會維護單處理器內的順序一致性, 不需要lock prefix提供的記憶體屏障效果\).
 
   * Intel的手冊對lock prefix的說明如下:
+
+    * 確保對記憶體的讀-改-寫操作是原子執行的. 在Pentium及Pentium之前的處理器中, 帶有lock prefix的指令在執行期間會鎖住bus, 使得其他處理器暫時無法通過bus存取記憶體. 很顯然地, 這會帶來高昂的開銷. 從Pentium 4, Intel Xeon及P6處理器開始, Intel在原有bus lock的基礎上做了一個很有意義的最佳化: 若要存取的記憶體區域\(area of memory\)在lock prefix執行期間已經在處理器內部的快取中被鎖定\(即包含該記憶體區域的快取行當前處於獨佔或已修改的狀態\), 並且該記憶體區域被完全包含在單個快取行\(cache line\)中, 那麼處理器將會直接執行該指令.由於在指令執行期間該快取行會一直被鎖定, 其他處理器無法讀/寫該指令要存取的記憶體區域, 因此能保證指令執行的原子性. 這個操作過程叫做快取鎖定\(cache locking\), 快取鎖定將大大降低lock prefix指令的執行開銷, 但是當多處理器之間的競爭程度很高或著指令存取的記憶體地址未對齊時, 仍然會鎖住bus.
+
+    * 禁止該指令與之前和之後的讀/寫指令進行重排序.
+
+    * 把write buffer中的所有資料更新到記憶體中
+
+  * 上面的第二點跟第三點所具有的記憶體屏障效果, 足以同時實現volatile read/write的記憶體語意. 經過上面的這些分析, 就可以了解為什麼JDK文件說CAS同時具有volatile read/write的記憶體語意了
+
+  * 再來, 對公平鎖和非公平鎖的記憶體語意做個總結:
+
+    * 公平鎖和非公平鎖釋放時, 最後都要寫一個volatile變數state.
+
+    * 公平鎖獲取時, 首先會去讀這個volatile變數.
+
+    * 非公平鎖獲取時, 首先會用CAS更新這個volatile變數, 這個操作同時具有volatile read/write的記憶體語意.
+
+  * 在本文中對ReentrantLock的分析可以看出, lock的釋放-獲取之記憶體語意的實作至少有以下兩種方式:
+
+    * 利用volatile變數的寫-讀所具有的記憶體語意.
+
+    * 利用CAS所附帶的volatile read/write的記憶體語意.
 
 ### Concurrent Package的實作
 
