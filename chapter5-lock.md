@@ -32,6 +32,7 @@
   * lock獲取與volatile讀具有相同的記憶體語意.
 
 * 以下對lock釋放與lock獲取的記憶體語意做個總結:
+
   * 執行緒A釋放一個lock, 實質上是執行緒A向接下來將要獲取這個lock的某個執行緒發出了\(執行緒A對共享變數所做修改的\)訊息.
   * 執行緒B獲取一個lock, 實質上是執行緒B接收了之前某個執行緒發出的\(在釋放這個lock之前對共享變數所做修改的\)訊息.
   * 執行緒A釋放lock, 隨後執行緒B獲取這個lock, 這個過程實質上是執行緒A通過主記憶體向執行緒B發送訊息.
@@ -44,7 +45,8 @@
 
 * ReentrantLock的實作依賴於java synchronizer framework - AbstractQueuedSynchronizer \(下文簡稱AQS\). AQS使用一個整數型態的volatile變數\(其被命名為state\)來維護同步狀態, 稍後也會在JDK的原始碼中看到這個volatile變數是如何扮演實現ReentrantLock記憶體語意實作的關鍵.
 
-* 下圖是ReentrantLock的class diagram \(僅畫出與本文相關的部分\):
+* 下圖是ReentrantLock的class diagram \(僅畫出與本文相關的部分\):  
+  ![](/assets/jmm-41.png)
 
 * 額外附贈一張IntelliJ產生的精美簡圖\(絕非業配文\):  
   ![](/assets/jmm-42.png)
