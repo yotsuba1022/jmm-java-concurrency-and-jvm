@@ -64,7 +64,7 @@
     2. NonfairSync: lock\(\)  
     3. AbstractQueuedSynchronizer: compareAndSetState\(int expect, int update\)
 
-          在第3步真正開始上鎖, 以下是該方法的原始碼:
+      在第3步真正開始上鎖, 以下是該方法的原始碼:
 
 ### Concurrent Package的實作
 
