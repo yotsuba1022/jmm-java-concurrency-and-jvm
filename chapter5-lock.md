@@ -62,8 +62,9 @@
   * 非公平鎖的釋放和公平鎖是一樣的, 故此處僅分析非公平鎖的獲取. 使用非公平鎖時, 加鎖方法lock\(\)之invoke trace如下:  
     1. ReentrantLock: lock\(\)  
     2. NonfairSync: lock\(\)  
-    3. AbstractQueuedSynchronizer: compareAndSetState\(int expect, int update\)  
-  
+    3. AbstractQueuedSynchronizer: compareAndSetState\(int expect, int update\)
+
+            在第3步真正開始上鎖, 以下是該方法的原始碼:
 
 ### Concurrent Package的實作
 
