@@ -61,7 +61,12 @@
 
 ### final語意在處理器中的實作
 
+* 現在我們以x86處理器為例, 說明final語意在處理器中的具體實作. 前面有提到, 寫final field的重排序規則會要求編譯器在final field的寫之後, 建構子回傳之前, 插入一個StoreStore屏障. 讀final field的重排序規則要求編譯器在讀final field的操作前面插入一個LoadLoad屏障.
+* 由於x86處理器不會對write-write操作進行重排序, 故在x86處理器中, 寫final field需要的StoreStore屏障會被省略掉. 同樣, 由於x86處理器不會對存在間接相依性的操作進行重排序, 所以在x86處理器中, 讀final field需要的LoadLoad屏障也會被省略掉. 意思就是說在x86處理器裡, final field的read/write不會插入任何記憶體屏障.
+
 ### JSR-133為什麼要增強final的語意
+
+* 在舊的Java記憶體模型中, 最嚴重的一個缺陷就是執行緒可能看到final field的值會改變. 譬如說, 一個執行緒當前看到一個整數型別的final field其值為0\(還沒初始化的預設值\), 過一段時間後, 這個執行緒再去讀這個final field的值時, 卻發現值變為了1\(被某個執行緒初始化之後的值\). 最常見的例子就是在舊的Java記憶體模型中, String的值可能會改變\(註1\). 為了修補這個漏洞, JSR-133增強了final的語意. 通過為final field增加寫和讀的重排序規則, 可以為Java開發者提供初始化安全保證: 只要物件是正確建構的\(被建構物件的參照在建構子中沒有"逸出"\), 那麼不需要使用同步\(即lock/volatile的使用\), 就可以保證任意執行緒都能看到這個final field在建構子中被初始化之後的值.
 
 
 
