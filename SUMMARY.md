@@ -7,6 +7,7 @@
 * [Chapter4. Volatile](chapter4-volatile.md)
 * [Chapter5. Lock](chapter5-lock.md)
 * [Chapter6. Final](chapter6-final.md)
+* [Chapter7. DCL and Lazy Initialization](1111111.md)
 * [Chapter8. Summary](chapter8-summary.md)
 * [Reference](reference.md)
 
