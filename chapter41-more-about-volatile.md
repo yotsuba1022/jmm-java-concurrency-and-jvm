@@ -8,11 +8,18 @@
 
 ### Volatile的官方定義
 
-Java語言規範第三版中對volatile的定義如下: Java允許執行緒存取共享變數, 為了確保共享變數能被準確且一致的更新, 執行緒應該確保通過排他鎖單獨獲取這個變數. Java提供了volatile, 在某些情況下比lock更加方便. 若一個field被宣告成volatile, JMM就會確保所有執行緒看到這個變數的值是一致的.
+* Java語言規範第三版中對volatile的定義如下: Java允許執行緒存取共享變數, 為了確保共享變數能被準確且一致的更新, 執行緒應該確保通過排他鎖單獨獲取這個變數. Java提供了volatile, 在某些情況下比lock更加方便. 若一個field被宣告成volatile, JMM就會確保所有執行緒看到這個變數的值是一致的.
 
 ### 為何要使用volatile
 
-volatile如果使用恰當的話, 相較於synchronized, 其使用和執行成本會更低, 因為其不會引起執行緒context的切換與調度.
+* volatile如果使用恰當的話, 相較於synchronized, 其使用和執行成本會更低, 因為其不會引起執行緒context的切換與調度.
+
+### Volatile的實作原理
+
+* 那麼volatile是如何來保證可見性的呢? 在x86處理器下通過工具獲取JIT編譯器生成的組合語言指令來看看volatile進行寫入操作時, CPU會做哪些事情:
+  ![](/assets/jmm-85.png)
+
+  有volatile變數修飾的共享變數進行寫入操作時會多出第二行的組合語言代碼, 通過查詢IA-32架構軟體開發者手冊可知, lock prefix的指令在多核心處理器下會引發兩件事情:
 
 
 
