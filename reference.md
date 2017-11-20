@@ -5,6 +5,8 @@
 1. InfoQ - 深入理解Java內存模型 ... 程曉明  
    原文系列連結: [點我](http://www.infoq.com/cn/profile/程晓明)
 
-2. 
+2. InfoQ - 聊聊並發 ... 方騰飛  
+   原文系列連結: [點我](http://www.infoq.com/cn/profile/%E6%96%B9%E8%85%BE%E9%A3%9E)
+
 
 
