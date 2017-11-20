@@ -9,5 +9,6 @@
 * [Chapter6. Final](chapter6-final.md)
 * [Chapter7. DCL and Lazy Initialization](1111111.md)
 * [Chapter8. Summary](chapter8-summary.md)
+* [Appendix](appendix.md)
 * [Reference](reference.md)
 
