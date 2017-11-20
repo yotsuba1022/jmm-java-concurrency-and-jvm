@@ -12,5 +12,7 @@ Java語言規範第三版中對volatile的定義如下: Java允許執行緒存�
 
 ### 為何要使用volatile
 
+volatile如果使用恰當的話, 相較於synchronized, 其使用和執行成本會更低, 因為其不會引起執行緒context的切換與調度.
+
 
 
