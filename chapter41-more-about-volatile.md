@@ -36,7 +36,7 @@
 
 ### 參考資料
 
-* [Intel® 64 and IA-32 Architectures Software Developer Manuals](https://software.intel.com/en-us/articles/intel-sdm)\(上面提到的第三冊是指vol-3a那本\)
+* [Intel® 64 and IA-32 Architectures Software Developer Manuals](https://software.intel.com/en-us/articles/intel-sdm) \(上面提到的第三冊是指vol-3a那本\)
 
 
 
