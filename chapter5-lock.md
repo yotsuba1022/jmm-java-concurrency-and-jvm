@@ -13,8 +13,6 @@
   * 根據**monitor lock規則**, **3 happens before 4**.
   * 根據happens before的傳遞性, 2 happens before 5.
 
-
-
 * 上述happens before關係的圖形化表現形式如下:  
   ![](/assets/jmm-37.png)  
   在上圖中, 每一個箭頭連接的兩個節點, 代表了一個happens before關係. 紫色箭頭表示**程式順序規則**; 橙色箭頭表示**monitor lock規則**; 湖水綠色箭頭表示組合這些規則後提供的**happens before保證**.
@@ -33,6 +31,8 @@
 
   * lock釋放與volatile寫具有相同的記憶體語意.
   * lock獲取與volatile讀具有相同的記憶體語意.
+
+
 
 * 以下對lock釋放與lock獲取的記憶體語意做個總結:
 
