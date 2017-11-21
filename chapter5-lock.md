@@ -85,7 +85,7 @@
 
     在第3步真正開始上鎖, 以下是該方法的原始碼:  
     ![](/assets/jmm-45.png)  
-    該方法以原子操作的方式更新state變數, 本文把java的compareAndSet\(\)方法簡稱為CAS. 根據JDK對該方法的說明: 如果當前狀態值等於預期值, 則以原子方式將同步狀態設置為給定的更新值. 此操作具有volatile讀/寫的記憶體語意.
+    該方法以原子操作的方式更新state變數, 本文把java的compareAndSet\(\)方法簡稱為**CAS**. 根據JDK對該方法的說明: **如果當前狀態值等於預期值, 則以原子方式將同步狀態設置為給定的更新值**. 此操作具有volatile讀/寫的記憶體語意.
 
   * 這裡我們分別從編譯器和處理器的角度來分析, CAS如何同時具有volatile讀與volatile寫的記憶體語意.
 
@@ -109,11 +109,11 @@
     這個native method的最終實現如下:  
     \[[part 1](https://github.com/JetBrains/jdk8u_hotspot/blob/master/src/os_cpu/windows_x86/vm/atomic_windows_x86.inline.hpp#L62-L69)\]  
     \[[part 2](https://github.com/JetBrains/jdk8u_hotspot/blob/master/src/os_cpu/windows_x86/vm/atomic_windows_x86.inline.hpp#L216-L226)\]  
-    如上面的原始碼所示, 程式會根據當前處理器的類型來決定是否為cmpxchg指令添加lock prefix. 如果程式是在多處理器上運行, 就為cmpxchg指令加上lock prefix \(lock cmpxchg\). 反之, 若程式是在單處理器上運行, 就省略lock prefix \(單處理器本身會維護單處理器內的順序一致性, 不需要lock prefix提供的記憶體屏障效果\).
+    如上面的原始碼所示, 程式會根據當前處理器的類型來決定是否為**cmpxchg**指令添加lock prefix. 如果程式是在多處理器上運行, 就為cmpxchg指令加上lock prefix \(lock cmpxchg\). 反之, 若程式是在單處理器上運行, 就省略lock prefix \(單處理器本身會維護單處理器內的順序一致性, 不需要lock prefix提供的記憶體屏障效果\).
 
   * Intel的手冊對lock prefix的說明如下:
 
-    * 確保對記憶體的讀-改-寫操作是原子執行的. 在Pentium及Pentium之前的處理器中, 帶有lock prefix的指令在執行期間會鎖住bus, 使得其他處理器暫時無法通過bus存取記憶體. 很顯然地, 這會帶來高昂的開銷. 從Pentium 4, Intel Xeon及P6處理器開始, Intel在原有bus lock的基礎上做了一個很有意義的最佳化: 若要存取的記憶體區域\(area of memory\)在lock prefix執行期間已經在處理器內部的快取中被鎖定\(即包含該記憶體區域的快取行當前處於獨佔或已修改的狀態\), 並且該記憶體區域被完全包含在單個快取行\(cache line\)中, 那麼處理器將會直接執行該指令.由於在指令執行期間該快取行會一直被鎖定, 其他處理器無法讀/寫該指令要存取的記憶體區域, 因此能保證指令執行的原子性. 這個操作過程叫做快取鎖定\(cache locking\), 快取鎖定將大大降低lock prefix指令的執行開銷, 但是當多處理器之間的競爭程度很高或著指令存取的記憶體地址未對齊時, 仍然會鎖住bus.
+    * 確保對記憶體的讀-改-寫操作是原子執行的. **在Pentium及Pentium之前的處理器中, 帶有lock prefix的指令在執行期間會鎖住bus, 使得其他處理器暫時無法通過bus存取記憶體**. 很顯然地, 這會帶來高昂的開銷. 從Pentium 4, Intel Xeon及P6處理器開始, Intel在原有bus lock的基礎上做了一個很有意義的最佳化: **若要存取的記憶體區域\(area of memory\)在lock prefix執行期間已經在處理器內部的快取中被鎖定\(即包含該記憶體區域的cache line當前處於獨佔或已修改的狀態\), 並且該記憶體區域被完全包含在單個cache line中, 那麼處理器將會直接執行該指令.**由於在指令執行期間該cache line會一直被鎖定, 其他處理器無法讀/寫該指令要存取的記憶體區域, 因此能保證指令執行的原子性. 這個操作過程叫做快取鎖定\(cache locking\), 快取鎖定將大大降低lock prefix指令的執行開銷, 但是當多處理器之間的競爭程度很高或著指令存取的記憶體地址未對齊時, 仍然會鎖住bus.
 
     * 禁止該指令與之前和之後的讀/寫指令進行重排序.
 
