@@ -34,16 +34,13 @@ JVM規格規定JVM基於進入與退出monitor物件來實現方法同步以及�
     | 32/64 bit | Class Metadata Address | 儲存指向該物件的class meta data之指標 |
     | 32/64 bit | Array Length | 陣列的長度 \(若當前物件是陣列\) |
   * Java物件頭裡的mark word裡預設儲存物件的hash code, GC generation資訊和鎖標記. 32-bit JVM的mark word預設之儲存結構如下:  
-
-
-    |  | 25 bit | 4 bit | 1 bit \(是否為biased locking\) | 2 bit \(鎖標記\) |
+  * |  | 25 bit | 4 bit | 1 bit \(是否為biased locking\) | 2 bit \(鎖標記\) |
     | :--- | :--- | :--- | :--- | :--- |
-    | 無鎖狀態 | 物件的hash code | 物件的generation資訊  | 0 | 01 |
+    | 無鎖狀態 | 物件的hash code | 物件的generation資訊 | 0 | 01 |
 
-  * 
-* #### Lock Upgrade
-* #### Biased Locking
-* #### Lightweight Locking
+* * #### Lock Upgrade
+  * #### Biased Locking
+  * #### Lightweight Locking
 
 ### 鎖的優缺點對比
 
