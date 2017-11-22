@@ -37,9 +37,8 @@ JVM規格規定JVM基於進入與退出monitor物件來實現方法同步以及�
   * |  | 25 bit | 4 bit | 1 bit\(是否為biased locking\) | 2 bit\(鎖標記\) |
     | :--- | :--- | :--- | :--- | :--- |
     | 無鎖狀態 | 物件的hash code | 物件的generation資訊 | 0 | 01 |
-  * 在運行期間mark word裡儲存的資料會隨著鎖標記的變化而作出相應的改變. Mark word可能變化為儲存以下四種資料:
-
-  * ![](/assets/jmm-91.png)
+  * 在運行期間mark word裡儲存的資料會隨著鎖標記的變化而作出相應的改變. Mark word可能變化為儲存以下四種資料:  
+    ![](/assets/jmm-91.png)
 
   * 
   * 
