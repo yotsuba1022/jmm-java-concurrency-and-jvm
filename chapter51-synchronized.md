@@ -37,7 +37,6 @@ JVM規格規定JVM基於進入與退出monitor物件來實現方法同步以及�
   * |  | 25 bit | 4 bit | 1 bit \(是否為biased locking\) | 2 bit \(鎖標記\) |
     | :--- | :--- | :--- | :--- | :--- |
     | 無鎖狀態 | 物件的hash code | 物件的generation資訊 | 0 | 01 |
-
 * * #### Lock Upgrade
   * #### Biased Locking
   * #### Lightweight Locking
