@@ -1,8 +1,22 @@
 # Appendix
 
-* 關於文章中的一些術語的整理:
-  ![](/assets/jmm-84.png)
+* 下表是關於文章中的一些術語的整理:
 
-* 
+* | Term | English | Description |
+  | :--- | :--- | :--- |
+  | 共享變數 | Shared Variable | 在多個執行緒之間能夠被共享的變數. 其包含了所有的實例變數, 靜態變數和陣列元素. 它們都被存放在heap記憶體中, volatile只會作用於共享變數 |
+  | 記憶體屏障 | Memory Barriers | 是一組處理器指令, 用於實作對記憶體操作的順序限制 |
+  | 快取行\(塊\) | Cache Line/Cache Block | 快取中可以分配的最小儲存單位. 處理器填寫cache block時會加載整個cache line, 需要使用多個主記憶體的讀取週期 |
+  | 原子操作 | Atomic Operations | 不可中斷的一個或一系列操作 |
+  | 快取行\(塊\)填充 | Cache Line/Cache Block Fill | 當處理器識別到從記憶體中讀取的運算元是可以被快取的, 處理器讀取整個cache block到適當的快取\(L1, L2, L3的或所有\) |
+  | 快取命中 | Cache Hit | 若進行高速cache block填充操作的記憶體位置仍然是下次處理器存取的地址時, 處理器從快取中讀取運算元, 而不是從記憶體 |
+  | 寫入命中 | Write Hit | 當處理器將運算元寫回一個記憶體快取區域時, 其首先會檢查此快取的記憶體地址是否在cache block中, 若存在一個有效的cache block, 則處理器將這個運算元寫回至快取, 而不是寫回記憶體 |
+  | 寫缺失 | Write Misses the Cache | 一個有效的cache block被寫至不存在的記憶體區域 |
+  | CAS | Compare and Swap | 比較並且設值. 用於硬體層面上提供原子性操作. 在Intel處理器中, 比較並交換通過cmpxchg指令實作. 比較是否和給定的數值一致, 若一致則修改, 反之則不修改 |
+
+
+
+
+
 
 
