@@ -6,6 +6,11 @@
 
 ### 同步的原理
 
+* #### Java Object Header
+* #### Lock Upgrade
+* #### Biased Locking
+* #### Lightweight Locking
+
 ### 鎖的優缺點對比
 
 ### 參考資料
