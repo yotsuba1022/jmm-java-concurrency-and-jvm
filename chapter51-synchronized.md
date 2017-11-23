@@ -37,8 +37,22 @@ JVM規格規定JVM基於進入與退出monitor物件來實現方法同步以及�
 
   * 至於在64-bit的JVM下, mark word的大小是64-bit, 其儲存結構如下:  
     ![](/assets/jmm-92.png)
-
 * #### Lock Upgrade
+
+  JDK6為了減少獲得鎖和釋放鎖的過程所帶來的性能消耗, 引入了biased locking與lightweight locking, 所以在JDK6裡, 鎖一共有四種狀態:
+
+  * 無鎖狀態
+
+  * Biased Locking
+
+  * Lightweight Locking
+
+  * Heavyweight Locking  
+  
+    鎖會隨著競爭的情況加劇而逐漸升級, 但是鎖只能升級, 不能降級, 這意味著biased locking升級成lightweight locking後, 就沒辦法再降級回biased locking了. 這種只升不降的策略, 其目的是為了提高獲得鎖和釋放鎖的效率, 之後會繼續提到.
+
+鎖會隨著競爭的情況加劇而逐漸升級, 但是鎖只能升級, 不能降級, 這意味著biased locking升級成lightweight locking後, 就沒辦法再降級回biased locking了. 這種只升不降的策略, 其目的是為了提高獲得鎖和釋放鎖的效率, 之後會繼續提到.
+
 * #### Biased Locking
 * #### Lightweight Locking
 
