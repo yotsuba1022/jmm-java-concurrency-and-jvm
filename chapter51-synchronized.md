@@ -49,8 +49,9 @@ JVM規格規定JVM基於進入與退出monitor物件來實現方法同步以及�
 
   * Heavyweight Locking
 
-    鎖會隨著競爭的情況加劇而逐漸升級, 但是鎖只能升級, 不能降級, 這意味著biased locking升級成lightweight locking後, 就沒辦法再降級回biased locking了. 這種只升不降的策略, 其目的是為了提高獲得鎖和釋放鎖的效率, 之後會繼續提到ased Locking
+    鎖會隨著競爭的情況加劇而逐漸升級, 但是鎖只能升級, 不能降級, 這意味著biased locking升級成lightweight locking後, 就沒辦法再降級回biased locking了. 這種只升不降的策略, 其目的是為了提高獲得鎖和釋放鎖的效率, 之後會繼續提到.
 
+* #### Biased Locking
 * #### Lightweight Locking
 
 ### 鎖的優缺點對比
