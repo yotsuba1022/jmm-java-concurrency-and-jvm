@@ -38,11 +38,9 @@ JVM規格規定JVM基於進入與退出monitor物件來實現方法同步以及�
   * 至於在64-bit的JVM下, mark word的大小是64-bit, 其儲存結構如下:  
     ![](/assets/jmm-92.png)
 
-### Lock Upgrade
-
-### Biased Locking
-
-### Lightweight Locking
+* #### Lock Upgrade
+* #### Biased Locking
+* #### Lightweight Locking
 
 ### 鎖的優缺點對比
 
