@@ -62,14 +62,11 @@ JVM規格規定JVM基於進入與退出monitor物件來實現方法同步以及�
 
 * #### Lightweight Locking
 
-  Lightweight locking的上鎖: 執行緒在執行同步程式區塊之前, JVM會先在當前執行緒的stack frame中創造用於儲存鎖紀錄的空間, 並將物件頭中的mark word複製到鎖紀錄當中, 官方稱此行為做"Displaced Mark Word". 之後, 執行緒嘗試使用CAS將物件頭中的mark word替換為指向鎖紀錄的指標. 若替換成功, 當前執行緒獲得鎖, 反之, 表示有其它執行緒在競爭, 當前執行緒就會嘗試使用自旋\(spin\)來獲取鎖.
-
-
-
-  Lightweight locking的解鎖: 此時會使用原子的CAS操作來將displaced mark word替換回到物件頭, 若成功, 則表示沒有競爭發生. 若失敗, 表示當前鎖存在競爭, 鎖就會膨脹\(inflate\)成重量級鎖\(Heavyweight Locking\). 下圖是兩個執行緒同時競爭鎖, 導致鎖膨脹的流程圖.
-
-
-
+  Lightweight locking的上鎖: 執行緒在執行同步程式區塊之前, JVM會先在當前執行緒的stack frame中創造用於儲存鎖紀錄的空間, 並將物件頭中的mark word複製到鎖紀錄當中, 官方稱此行為做"Displaced Mark Word". 之後, 執行緒嘗試使用CAS將物件頭中的mark word替換為指向鎖紀錄的指標. 若替換成功, 當前執行緒獲得鎖, 反之, 表示有其它執行緒在競爭, 當前執行緒就會嘗試使用自旋\(spin\)來獲取鎖.  
+  
+  Lightweight locking的解鎖: 此時會使用原子的CAS操作來將displaced mark word替換回到物件頭, 若成功, 則表示沒有競爭發生. 若失敗, 表示當前鎖存在競爭, 鎖就會膨脹\(inflate\)成重量級鎖\(Heavyweight Locking\). 下圖是兩個執行緒同時競爭鎖, 導致鎖膨脹的流程圖:  
+  ![](/assets/jmm-95.png)  
+  
   因為spin會消耗CPU, 為了避免無意義的spin\(譬如獲得鎖的執行緒被block了\), 一但鎖升級成heavyweight locking, 就不會再恢復到lightweight locking. 當鎖處於這個狀態下, 其它執行緒試圖獲取鎖時, 都會被block, 當持有鎖的執行緒釋放鎖之後會喚醒這些執行緒, 被喚醒的執行緒就會嘗試使用spin來獲取鎖.
 
 ### 鎖的優缺點對比
