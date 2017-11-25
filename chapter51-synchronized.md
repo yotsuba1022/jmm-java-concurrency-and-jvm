@@ -57,16 +57,17 @@ JVM規格規定JVM基於進入與退出monitor物件來實現方法同步以及�
   Hotspot的作者經過以往的研究後發現在大多數的情況下, 鎖不僅不存在多執行緒競爭, 而且總是由同一個執行緒多次獲得, 為了讓執行緒獲得鎖的代價更低而引入了biased locking. 當一個執行緒\(T1\)存取同步程式區塊並且獲得鎖的時候, JVM會把鎖的物件頭中的鎖標記更改為"01"\(即biased locking mode\), 同時使用CAS操作把獲取到這個鎖的執行緒\(T1\)之ID記錄在物件的mark word之中. 之後該執行緒在進入/退出同步程式區塊時就不需要花費CAS操作來加鎖/解鎖, 而只需要簡單的測試一下物件頭的mark word裡是否儲存著指向當前執行緒的biased locking, 若測試成功, 表示執行緒已經獲得了鎖, 反之, 則需要再測試一下mark word中biased locking的標記是否設置成"1" \(表示當前是biased locking\), 若沒有設置, 則用CAS競爭鎖, 反之, 則嘗試用CAS將物件頭的biased locking指向當前執行緒.
 
   Biased locking的撤銷\(**Revoke Bias**\): Biased locking使用了一種等到競爭出現才會釋放鎖的機制, 所以當其它執行緒嘗試競爭biased locking的時候, 持有biased locking的執行緒才會釋放鎖. Biased locking的撤銷, 需要等待一個global的安全點\(即在當前時間點上沒有任何byte code正在執行\), 其首先會暫停擁有鎖的執行緒, 然後檢查持有biased locking的執行緒是否活著, 若執行緒不處於活動狀態, 則將物件頭設置成無鎖狀態, 若執行緒仍然活著, 擁有biased locking的stack會被執行, 迭代biased object的鎖紀錄, stack中的鎖紀錄和物件頭的mark word若不是重新偏向其它執行緒, 就是要恢復到無鎖或著標記物件不適合作為biased locking, 最後喚醒暫停的執行緒. 下圖中的執行緒1展示了biased locking初始化的流程, 執行緒2展示了biased lock撤銷的流程:  
+  
   ![](/assets/jmm-94.png)  
   關閉biased locking: biased locking在JDK6/7裡是預設啟用的, 但它在應用程式啟動幾秒鐘之後才會進入activated狀態, 若有必要的話, 可以透過JVM參數來關閉延遲\(**-XX:BiasedLockingStartupDelay=0**\). 若你確定自己的應用程式裡所有的鎖通常情況下都會處在競爭的狀態, 那可以通過JVM參數關閉biased locking\(**-XX:UseBiasedLocking=false**\), 這時候就會預設進入lightweight locking mode.
 
 * #### Lightweight Locking
 
-  Lightweight locking的上鎖: 執行緒在執行同步程式區塊之前, JVM會先在當前執行緒的stack frame中創造用於儲存鎖紀錄的空間, 並將物件頭中的mark word複製到鎖紀錄當中, 官方稱此行為做"Displaced Mark Word". 之後, 執行緒嘗試使用CAS將物件頭中的mark word替換為指向鎖紀錄的指標. 若替換成功, 當前執行緒獲得鎖, 反之, 表示有其它執行緒在競爭, 當前執行緒就會嘗試使用自旋\(spin\)來獲取鎖.  
-  
+  Lightweight locking的上鎖: 執行緒在執行同步程式區塊之前, JVM會先在當前執行緒的stack frame中創造用於儲存鎖紀錄的空間, 並將物件頭中的mark word複製到鎖紀錄當中, 官方稱此行為做"Displaced Mark Word". 之後, 執行緒嘗試使用CAS將物件頭中的mark word替換為指向鎖紀錄的指標. 若替換成功, 當前執行緒獲得鎖, 反之, 表示有其它執行緒在競爭, 當前執行緒就會嘗試使用自旋\(spin\)來獲取鎖.
+
   Lightweight locking的解鎖: 此時會使用原子的CAS操作來將displaced mark word替換回到物件頭, 若成功, 則表示沒有競爭發生. 若失敗, 表示當前鎖存在競爭, 鎖就會膨脹\(inflate\)成重量級鎖\(Heavyweight Locking\). 下圖是兩個執行緒同時競爭鎖, 導致鎖膨脹的流程圖:  
-  ![](/assets/jmm-95.png)  
-  
+  ![](/assets/jmm-95.png)
+
   因為spin會消耗CPU, 為了避免無意義的spin\(譬如獲得鎖的執行緒被block了\), 一但鎖升級成heavyweight locking, 就不會再恢復到lightweight locking. 當鎖處於這個狀態下, 其它執行緒試圖獲取鎖時, 都會被block, 當持有鎖的執行緒釋放鎖之後會喚醒這些執行緒, 被喚醒的執行緒就會嘗試使用spin來獲取鎖.
 
 ### 鎖的優缺點對比
