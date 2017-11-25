@@ -80,7 +80,7 @@ JVM規格規定JVM基於進入與退出monitor物件來實現方法同步以及�
 * [Java Virtual Machine Online Instruction Reference - monitorenter](https://cs.au.dk/~mis/dOvs/jvmspec/ref--44.html)
 * [OpenJDK wiki - Synchronization and Object Locking](https://wiki.openjdk.java.net/display/HotSpot/Synchronization)
 
-* 深入理解JVM: JVM進階特性與最佳實踐\(第二版\)
+* [深入理解JVM: JVM進階特性與最佳實踐\(第二版\)](https://www.tenlong.com.tw/products/9787111421900)
 
 
 
