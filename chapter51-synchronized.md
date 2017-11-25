@@ -73,6 +73,8 @@ JVM規格規定JVM基於進入與退出monitor物件來實現方法同步以及�
 
 ### 鎖的優缺點對比
 
+![](/assets/jmm-96.png)
+
 ### 參考資料
 
 * [Java Virtual Machine Online Instruction Reference - monitorenter](https://cs.au.dk/~mis/dOvs/jvmspec/ref--44.html)
