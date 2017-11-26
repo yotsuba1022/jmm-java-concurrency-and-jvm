@@ -74,7 +74,7 @@ JVM規格規定JVM基於進入與退出monitor物件來實現方法同步以及�
 
   因為spin會消耗CPU, 為了避免無意義的spin\(譬如獲得鎖的執行緒被block了\), 一但鎖升級成heavyweight locking, 就不會再恢復到lightweight locking. 當鎖處於這個狀態下, 其它執行緒試圖獲取鎖時, 都會被block, 當持有鎖的執行緒釋放鎖之後會喚醒這些執行緒, 被喚醒的執行緒就會嘗試使用spin來獲取鎖.
 
-  Lightweight locking程式可以提昇程式同步性能的依據是"**對於絕大部分的鎖, 在整個同步週期內都是不存在競爭的\(就是說後面那些在spin的執行緒在超過spin limit之前, 當前拿到鎖的執行緒就可以完成同步程式區塊內的工作並且讓出鎖, 然後讓後面spin的執行緒順利取得鎖, 不會發生spin到timeout的情況\)**". 倘若沒有競爭, lightweight locking使用CAS操作避免了使用mutex的開銷, 但若存在競爭, 除了mutex外, 還額外產生了CAS操作, 因此在有競爭的情況下, lightweight locking會比傳統的heavyweight locking更慢.
+  Lightweight locking程式可以提昇程式同步性能的依據是"**對於絕大部分的鎖, 在整個同步週期內都是不存在競爭的\(就是說後面那些在spin的執行緒在超過spin limit之前, 當前拿到鎖的執行緒就可以完成同步程式區塊內的工作並且讓出鎖, 然後讓後面spin的那些執行緒順利取得鎖, 不會發生spin到timeout的情況\)**". 倘若沒有競爭, lightweight locking使用CAS操作避免了使用mutex的開銷, 但若存在競爭, 除了mutex外, 還額外產生了CAS操作, 因此在有競爭的情況下, lightweight locking會比傳統的heavyweight locking更慢.
 
 ### 鎖的優缺點對比![](/assets/jmm-96.png)
 
