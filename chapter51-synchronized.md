@@ -74,9 +74,7 @@ JVM規格規定JVM基於進入與退出monitor物件來實現方法同步以及�
 
   因為spin會消耗CPU, 為了避免無意義的spin\(譬如獲得鎖的執行緒被block了\), 一但鎖升級成heavyweight locking, 就不會再恢復到lightweight locking. 當鎖處於這個狀態下, 其它執行緒試圖獲取鎖時, 都會被block, 當持有鎖的執行緒釋放鎖之後會喚醒這些執行緒, 被喚醒的執行緒就會嘗試使用spin來獲取鎖.
 
-### 鎖的優缺點對比
-
-![](/assets/jmm-96.png)
+### 鎖的優缺點對比![](/assets/jmm-96.png)
 
 ### 參考資料
 
