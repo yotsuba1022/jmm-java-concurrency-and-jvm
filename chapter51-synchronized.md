@@ -29,8 +29,8 @@ JVM規格規定JVM基於進入與退出monitor物件來實現方法同步以及�
   * 鎖會存在物件頭裡. 如果物件是陣列型態, 則JVM用3個word\(mark word\)儲存物件頭, 如果物件是非陣列型態, 則用**2個word**儲存物件頭.  
     ![](/assets/jmm-89.png)
 
-  * Java物件頭裡的mark word裡預設儲存物件的hash code, GC generation資訊和鎖標記. 32-bit JVM的mark word預設之儲存結構如下:  
-  
+  * Java物件頭裡的mark word裡預設儲存物件的hash code, GC generation資訊和鎖標記. 32-bit JVM的mark word預設之儲存結構如下:
+
     ![](/assets/jmm-90.png)
 
   * 在運行期間mark word裡儲存的資料會隨著鎖標記的變化而作出相應的改變. Mark word可能變化為儲存以下四種資料\(指32-bit JVM中\):  
