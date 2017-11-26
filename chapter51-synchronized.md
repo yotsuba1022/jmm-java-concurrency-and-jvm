@@ -64,6 +64,7 @@ JVM規格規定JVM基於進入與退出monitor物件來實現方法同步以及�
 
 * #### Lightweight Locking
 
+  Lightweight Locking並不是要用來取代heavyweight locking的, 其本意是在沒有多執行緒競爭的前提下, 減少傳統的重量級鎖使用作業系統的mutex lock所產生之性能消耗.  
   Lightweight locking的上鎖: 執行緒在執行同步程式區塊之前, JVM會先在當前執行緒的stack frame中創造用於儲存鎖紀錄的空間, 並將物件頭中的mark word複製到鎖紀錄當中, 官方稱此行為做"Displaced Mark Word". 之後, 執行緒嘗試使用CAS將物件頭中的mark word替換為指向鎖紀錄的指標. 若替換成功, 當前執行緒獲得鎖, 反之, 表示有其它執行緒在競爭, 當前執行緒就會嘗試使用自旋\(spin\)來獲取鎖.
 
   Lightweight locking的解鎖: 此時會使用原子的CAS操作來將displaced mark word替換回到物件頭, 若成功, 則表示沒有競爭發生. 若失敗, 表示當前鎖存在競爭, 鎖就會膨脹\(inflate\)成重量級鎖\(Heavyweight Locking\). 下圖是兩個執行緒同時競爭鎖, 導致鎖膨脹的流程圖:
