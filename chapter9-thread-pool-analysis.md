@@ -19,6 +19,7 @@
   * 建立一個thread pool需要以下參數:
 
     * corePoolSize: Thread pool的基本大小, 當提交一個task到thread pool時, thread pool會建立一個執行緒來執行任務, 即使其它空閑的基本執行緒能夠執行新的task, thread pool還是會建立執行緒, 等到需要執行的task數量大於thread pool的基本大小時就不會再建立了. 若呼叫了thread pool的prestartAllCoreThreads方法, thread pool會提前建立並啟動所有基本執行緒:  
+  
       ![](/assets/jmm-98.png)
 
     * maximumPoolSize: 用以保存等待執行的task之blocking queue, 大致上有以下幾種選擇:
