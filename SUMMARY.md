@@ -12,6 +12,8 @@
 * [Chapter5.1 Synchronized](chapter51-synchronized.md)
 * [Chapter6. Final](chapter6-final.md)
 * [Chapter8. Summary](chapter8-summary.md)
+* [Part 2. Java Concurrency](part-2-java-concurrency.md)
+* [Chapter9. Thread Pool Analysis](chapter9-thread-pool-analysis.md)
 * [Appendix](appendix.md)
 * [Reference](reference.md)
 
