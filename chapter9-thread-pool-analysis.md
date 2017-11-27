@@ -53,8 +53,8 @@
 
         ![](/assets/jmm-99.png)
 
-      * **SynchronousQueue**: 一個不儲存元素的blocking queue, 每個插入操作必須等到另一個執行緒呼叫移除操作, 否則插入操作會一直處於blocking狀態, 吞吐量通常要高於LinkedBlockingQueue, 靜態工廠方法Executors.newCachedThreadPool就是用這個queue:  
-  
+      * **SynchronousQueue**: 一個不儲存元素的blocking queue, 每個插入操作必須等到另一個執行緒呼叫移除操作, 否則插入操作會一直處於blocking狀態, 吞吐量通常要高於LinkedBlockingQueue, 靜態工廠方法Executors.newCachedThreadPool就是用這個queue:
+
         ![](/assets/jmm-100.png)
 
       * **PriorityBlockingQueue**: 一個具有優先級別的unbounded blocking queue\(無界阻塞佇列\).
@@ -73,6 +73,14 @@
 
       * **ThreadPoolExecutor.DiscardOldestPolicy**: 若executor當下沒有被shut down, 位於work queue的**head**之task就會被丟掉\(因為它是最老的, oldest\).
 * #### 向thread pool提交task
+
+  我們可以使用execute提交task, 但是execute方法是沒有回傳值的, 所以無法判斷task是否被thread pool執行成功. 通過以下原始碼\(java.util.concurrent.Executor, 所有executor service的根介面\)可以知道execute方法輸入的task是一個Runnable的instance:  
+  
+  ![](/assets/jmm-101.png)  
+  當然我們也可以使用submit方法來提交task, 其會回傳一個future, 然後我們就可以通過這個傳回來的future物件來判斷task有沒有執行成功, 通過future的get\(\)來獲得回傳值, get\(\)會block, 直到task完成為止, 而使用get\(long timeout, TimeUnit unit\)則可以指定block一定時間後就回傳, 這時候task就有可能沒有執行完, 以下只截取java.util.concurrent.ExecutorService的其中一個submit方法, 其實submit除了Callable, 也是可以接收Runnable的:  
+  
+  ![](/assets/jmm-102.png)
+
 * #### Thread pool的關閉
 
 ### Thread Pool分析
