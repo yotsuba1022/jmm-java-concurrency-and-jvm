@@ -27,9 +27,10 @@
       * **ArrayBlockingQueue**: 是一種基於陣列結構的bounded blocking queue\(有界阻塞佇列\), 此queue按FIFO原則對元素進行排序.
 
       * **LinkedBlockingQueue**: 是一種基於連結串列結構的optionally-bounded blocking queue\(即可以自己指定界限大小的佇列\), 此queue也是以FIFO排序元素, 吞吐量通常要高於ArrayBlockingQueue. 靜態工廠方法Executors.newFixedThreadPool\(\)就是使用這個queue:  
+  
         ![](/assets/jmm-99.png)
 
-      * **SynchronousQueue**: 一個不儲存元素的blocking queue, 每個插入操作必須等到另一個執行緒呼叫移除操作, 否則插入操作會一直處於blocking狀態, 吞吐量通常要高於LinkedBlockingQueue, 靜態工廠方法Executors.newCachedThreadPool就是用這個queue.  
+      * **SynchronousQueue**: 一個不儲存元素的blocking queue, 每個插入操作必須等到另一個執行緒呼叫移除操作, 否則插入操作會一直處於blocking狀態, 吞吐量通常要高於LinkedBlockingQueue, 靜態工廠方法Executors.newCachedThreadPool就是用這個queue:  
         ![](/assets/jmm-100.png)
 
       * **PriorityBlockingQueue**: 一個具有優先級別的unbounded blocking queue\(無界阻塞佇列\).
