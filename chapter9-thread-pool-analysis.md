@@ -54,6 +54,7 @@
         ![](/assets/jmm-99.png)
 
       * **SynchronousQueue**: 一個不儲存元素的blocking queue, 每個插入操作必須等到另一個執行緒呼叫移除操作, 否則插入操作會一直處於blocking狀態, 吞吐量通常要高於LinkedBlockingQueue, 靜態工廠方法Executors.newCachedThreadPool就是用這個queue:  
+  
         ![](/assets/jmm-100.png)
 
       * **PriorityBlockingQueue**: 一個具有優先級別的unbounded blocking queue\(無界阻塞佇列\).
