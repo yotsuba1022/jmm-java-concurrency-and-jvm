@@ -26,8 +26,8 @@
 
       * **ArrayBlockingQueue**: 是一種基於陣列結構的bounded blocking queue\(有界阻塞佇列\), 此queue按FIFO原則對元素進行排序.
 
-      * **LinkedBlockingQueue**: 是一種基於連結串列結構的optionally-bounded blocking queue\(即可以自己指定界限大小的佇列\), 此queue也是以FIFO排序元素, 吞吐量通常要高於ArrayBlockingQueue. 靜態工廠方法Executors.newFixedThreadPool\(\)就是使用這個queue:  
-  
+      * **LinkedBlockingQueue**: 是一種基於連結串列結構的optionally-bounded blocking queue\(即可以自己指定界限大小的佇列\), 此queue也是以FIFO排序元素, 吞吐量通常要高於ArrayBlockingQueue. 靜態工廠方法Executors.newFixedThreadPool\(\)就是使用這個queue:
+
         ![](/assets/jmm-99.png)
 
       * **SynchronousQueue**: 一個不儲存元素的blocking queue, 每個插入操作必須等到另一個執行緒呼叫移除操作, 否則插入操作會一直處於blocking狀態, 吞吐量通常要高於LinkedBlockingQueue, 靜態工廠方法Executors.newCachedThreadPool就是用這個queue:  
@@ -35,9 +35,21 @@
 
       * **PriorityBlockingQueue**: 一個具有優先級別的unbounded blocking queue\(無界阻塞佇列\).
 
-    * keepAliveTime
+    * keepAliveTime: Thread pool的工作執行緒空閑後, 保持存活的時間. 若task很多, 並且每個task的執行時間都不長, 就可以調大這個時間, 提高執行緒的利用頻率.
 
-    * unit
+    * unit: 執行緒活動保持時間的單位, 可選的時間單位如下
+
+      * DAYS
+
+      * HOURS
+
+      * MINUTES
+
+      * MILLISECONDS
+
+      * MICROSECONDS
+
+      * NANOSECONDS
 
     * workQueue
 
