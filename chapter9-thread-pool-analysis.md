@@ -64,13 +64,13 @@
     * **handler**  
       RejectedExecutionHandler\(飽和策略\), 即當queue跟thread pool都滿了, 表示thread pool處於飽和狀態, 那麼必須採取一種策略去處理提交的新task. 這個策略預設是AbortPolicy, 表示無法處理新task時拋出exception. 下面是JDK5提供的四種策略:
 
-      * AbortPolicy: 直接拋出runtime exception \(RejectedExecutionException\).
+      * **ThreadPoolExecutor.AbortPolicy**: 直接拋出runtime exception \(**RejectedExecutionException**\).
 
-      * CallerRunsPolicy: 只有呼叫execute\(\)的那個執行緒來執行task, 這其實提供了一種回饋控制機制\(feedback control mechanism\)讓提交新task的速率得以減緩.
+      * **ThreadPoolExecutor.CallerRunsPolicy**: 只有呼叫execute\(\)的那個執行緒來執行task, 這其實提供了一種回饋控制機制\(feedback control mechanism\), 讓提交新task的速率得以減緩.
 
-      * DiscardPolicy: 就不處理了, 直接丟掉\(dropped\).
+      * **ThreadPoolExecutor.DiscardPolicy**: 就不處理了, 直接丟掉\(dropped\).
 
-      * DiscardOldestPolicy: 若executor當下沒有被shut down, 位於work queue的head之task就會被丟掉\(因為它是最老的, oldest\).
+      * **ThreadPoolExecutor.DiscardOldestPolicy**: 若executor當下沒有被shut down, 位於work queue的**head**之task就會被丟掉\(因為它是最老的, oldest\).
 * #### 向thread pool提交task
 * #### Thread pool的關閉
 
