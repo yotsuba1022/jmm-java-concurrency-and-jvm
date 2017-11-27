@@ -10,6 +10,15 @@
 
 ### Thread Pool的使用
 
+* #### Thread pool的建立
+
+  * 我們可以通過ThreadPoolExecutor來建立一個thread pool:  
+    ![](/assets/jmm-97.png)
+
+  * 建立一個thread pool需要以下參數:
+* #### 向thread pool提交task
+* #### Thread pool的關閉
+
 ### Thread Pool分析
 
 ### 合理的組態Thread Pool
