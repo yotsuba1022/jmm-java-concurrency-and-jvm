@@ -83,10 +83,10 @@
 
 * #### Thread pool的關閉
 
-  我們可以通過呼叫thread pool的shutdown\(\)/shutdownNow\(\)來關閉thread pool, 其原理是迭代thread pool中的worker thread, 然後逐一呼叫執行緒的interrupt\(\)來中斷執行緒, 所以無法回應/中斷的task可能就永遠無法終止. 但這兩種關閉的方式其實存在著一定的區別, shutdownNow\(\)首先將thread pool的狀態設成STOP, 然後嘗試停止所有正在執行或著暫停task的執行緒, 並回傳等待執行task的list, 而shutdown\(\)只是將thread pool的狀態設成SHUTDOWN狀態, 然後中斷所有沒有正在執行任務的執行緒.
+  我們可以通過呼叫thread pool的**shutdown\(\)/shutdownNow\(\)**來關閉thread pool, 其原理是迭代thread pool中的worker thread, 然後逐一呼叫執行緒的interrupt\(\)來中斷執行緒, 所以無法回應/中斷的task可能就永遠無法終止. 然而, 這兩種關閉的方式其實存在著一定的區別, **shutdownNow\(\)**首先將thread pool的狀態設成**STOP**, 然後嘗試停止所有正在執行或著暫停task的執行緒, 並**回傳等待執行task的list**, 而**shutdown\(\)**只是將thread pool的狀態設成**SHUTDOWN**狀態, 然後中斷所有沒有正在執行任務的執行緒\(呼叫interruptIdleWorkers\(\)\).
 
-  只要呼叫了這兩個關閉方法的任一個, isShutdown\(\)就會回傳true. 當所有的task都已經關閉後, 才意味著thread pool關閉成功, 這時呼叫isTerminated\(\)會回傳true. 至於應該呼叫哪一種方法來關閉thread pool, 應該由提交到thread pool的task之特性來決定, 一般來說都會呼叫shutdown來關閉, 若task不一定要執行完, 則可以呼叫shutdownNow\(\).  
-  
+  只要呼叫了這兩個關閉方法的任一個, isShutdown\(\)就會回傳true. 當所有的task都已經關閉後, 才意味著thread pool關閉成功, 這時呼叫isTerminated\(\)會回傳true. 至於應該呼叫哪一種方法來關閉thread pool, 應該由提交到thread pool的task之特性來決定, 一般來說都會呼叫shutdown來關閉, 若task不一定要執行完, 則可以呼叫shutdownNow\(\).
+
   ![](/assets/jmm-103.png)
 
 ### Thread Pool分析
