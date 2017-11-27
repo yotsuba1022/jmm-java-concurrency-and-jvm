@@ -13,6 +13,7 @@
 * #### Thread pool的建立
 
   * 我們可以通過ThreadPoolExecutor來建立一個thread pool:  
+  
     ![](/assets/jmm-97.png)
 
   * 建立一個thread pool需要以下參數:
