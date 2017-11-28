@@ -105,6 +105,7 @@ Thread pool的主要工作流程如下圖:
 #### 原始碼分析
 
 以上的流程分析已經很直觀的闡述了thread pool的工作原理, 再來稍微看一下原始碼是怎麼實作的:  
+  
 ![](/assets/jmm-105.png)
 
 #### Worker Thread
