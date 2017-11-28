@@ -94,8 +94,8 @@
 #### 流程分析
 
 Thread pool的主要工作流程如下圖:  
-![](/assets/jmm-104.png)  
-  
+![](/assets/jmm-104.png)
+
 從上圖可以看出, 在提交一個新的task至thread pool時, thread pool的處理流程如下:
 
 1. 首先, thread pool判斷基本的thread pool是否已滿, 若沒有則建立一個worker thread來執行任務, 反之則進入下一道流程.
@@ -103,6 +103,9 @@ Thread pool的主要工作流程如下圖:
 3. 最後thread pool會判斷整個pool是否滿了, 若沒滿就建立一個新的worker thread來執行task, 反之交給飽和策略來處理此task.
 
 #### 原始碼分析
+
+以上的流程分析已經很直觀的闡述了thread pool的工作原理, 再來稍微看一下原始碼是怎麼實作的:  
+![](/assets/jmm-105.png)
 
 #### Worker Thread
 
