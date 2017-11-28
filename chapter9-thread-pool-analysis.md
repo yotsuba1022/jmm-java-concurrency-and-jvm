@@ -95,6 +95,7 @@
 
 Thread pool的主要工作流程如下圖:  
 ![](/assets/jmm-104.png)  
+  
 從上圖可以看出, 在提交一個新的task至thread pool時, thread pool的處理流程如下:
 
 1. 首先, thread pool判斷基本的thread pool是否已滿, 若沒有則建立一個worker thread來執行任務, 反之則進入下一道流程.
