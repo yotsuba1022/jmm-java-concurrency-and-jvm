@@ -146,6 +146,22 @@ Thread pool在建立執行緒時, 會將執行緒封裝成worker thread \(Worker
 
 ### Thread Pool的監控
 
+在thread pool裡, 有一些方法在監控的時候可以參考:
+
+* getTaskCount: Thread pool所需要執行的task之近似值數量\(have ever been scheduled\), 注意, 這是近似值, 因為task的狀態在計算過程中可能會改變.
+* getCompletedTaskCount: Thread pool在運作過程中已經完成的task數量, 小於等於taskCount, 這也是個近似值.
+* getLargestPoolSize: Thread pool曾經建立過的最大執行緒數量, 通過這個資料可以知道thread pool是否滿過. 若等於thread pool的最大size, 表示其曾經滿過.
+* getPoolSize: Thread pool當前的執行緒數量. 若thread pool不銷毀的話, pool裡的執行緒也不會自動銷毀, 所以這個大小只增不減.
+* getActiveCount: 獲得正在活動中\(actively executing\)的執行緒數量, 這也是個近似值.
+
+通過繼承thread pool並且覆寫其中的beforeExecute/afterExecute以及terminated方法, 我們就可以在task執行的前/後與thread pool關閉前做點什麼事情.譬如監控task的平均執行時間, 最長執行時間與最短執行時間等等. 這幾個方法在thread pool裡是空方法:
+
+![](/assets/jmm-107.png)
+
+![](/assets/jmm-108.png)
+
+![](/assets/jmm-109.png)
+
 ### 參考資料
 
 
