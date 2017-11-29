@@ -164,5 +164,9 @@ Thread pool在建立執行緒時, 會將執行緒封裝成worker thread \(Worker
 
 ### 參考資料
 
+* [InfoQ: Java執行緒池的分析和使用](http://www.infoq.com/cn/articles/java-threadPool?utm_source=infoq&utm_campaign=user_page&utm_medium=link)
+
+* JDK9 source code \(build 9+181\)
+
 
 
