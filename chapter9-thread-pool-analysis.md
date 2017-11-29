@@ -118,6 +118,28 @@ Thread pool在建立執行緒時, 會將執行緒封裝成worker thread \(Worker
 
 ### 合理的組態Thread Pool
 
+要想合理的組態你的thread pool, 可以先從task的特性分析著手, 這邊有幾個常見的切入點可以作為分析的依據:
+
+* Task的性質: CPU密集型/IO密集型或著是混合型的task
+  這種性質的task可以用不同規模的thread pool分開處理. 
+
+  CPU密集型: 盡可能配少量一點的執行緒, 譬如配置cpu數量+1個執行緒的thread pool.
+
+  IO密集型: 由於這種task的執行緒並不是一直在執行, 則可以盡可能配制多一點執行緒, 如cpu數量的兩倍.
+
+  混合型: 若可以拆分, 則將其拆分成一個CPU密集型task和一個IO密集型task, 只要這兩個task執行的時間相差不是太大, 那麼分解後執行的吞吐量應該可以高於串連執行的吞吐量; 倘若執行時間相差過大, 就沒必要分解了. 我們可以通過Runtime.getRuntime\(\).availableProcessors\(\)方法得到當前設備上的CPU數量.
+
+* Task的優先程度: 由高到低
+  這種類型可以使用PriorityBlockingQueue來處理: 其可以讓優先度高的task先執行, 但要注意的是若一直都有高優先度的task被提交到queue裡, 那麼低優先度的task可能永遠都執行不到.
+
+* Task的執行時間: 由長到短
+  這種有時間差異的task可以交給不同規模的thread pool來處理, 或是使用PriorityBlockingQueue也可以, 讓執行時間短的任務先執行.
+
+* Task的相依性: 是否相依於其它系統資源, 如資料庫
+  相依於DB connection pool的task, 因為執行緒提交SQL後還要等DB回傳結果, 若等待的時間越長, CPU的空閑時間就越長, 那麼執行緒數量應該要設置得越大, 這樣才能更好地利用CPU.
+
+除了上述的手段, 還有一個建議就是: 使用bounded queue, 因為這種queue能增加系統的穩定性與預警能力, 可以根據需求調大一點, 譬如幾千. 試想以下情境: Thread pool跟workQueue都滿了, 不斷地拋出拋棄task的exception\(RejectedExecutionException\). 這時若發現是DB出了問題, 導致執行SQL變得異常緩慢, 因為thread pool裡的task全都是需要向DB進行query或是insert/update資料的, 所以導致thread pool裡的worker都塞住了, 因而讓task都積在thread pool中. 若這時候的workQueue是unbounded queue, thread pool的workQueue就會越長越大, 進而可能撐爆memory, 導致系統不能用, 而不再只是task出問題而已了. 當然, 儘管系統所有的task是用單獨的server去做部署的, 且針對不同類型的task使用不同規模的thread pool, 但出現了這種問題時, 還是有可能影響到其它有相依性的task.
+
 ### Thread Pool的監控
 
 ### 參考資料
