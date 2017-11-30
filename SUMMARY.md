@@ -14,6 +14,7 @@
 * [Chapter8. Summary](chapter8-summary.md)
 * [Part 2. Java Concurrency](part-2-java-concurrency.md)
 * [Chapter9. Thread Pool Analysis](chapter9-thread-pool-analysis.md)
+* [Chapter10. The Implementation of Atomic Operations](chapter10-the-implementation-of-atomic-operations.md)
 * [Appendix](appendix.md)
 * [Reference](reference.md)
 
