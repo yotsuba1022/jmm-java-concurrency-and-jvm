@@ -36,7 +36,13 @@
 
 ### Java如何實作原子操作
 
-使用循環CAS實作原子操作
+在Java中可以透過lock與循環CAS的方式來實作原子操作
 
-使用lock機制實作原子操作
+* #### 使用循環CAS實作原子操作
+
+  JVM中的CAS正是利用了前面提到的cmpxchg指令來實作的. 自旋CAS實作的基本思路就是循環進行CAS操作直到成功為止, 以下範例程式實作了一個基於CAS且thread-safe的counter方法threadSafeCount\(\)和一個non thread-safe的counter方法nonThreadSafeCount\(\).
+
+* #### 使用lock機制實作原子操作
+
+
 
