@@ -146,6 +146,7 @@ public class ForkJoinDemo {
 
 ForkJoinTask在執行的時候可能會拋出exception, 但是我們沒辦法於main thread中直接catch這些exception, 故ForkJoinTask提供了**isCompletedAbnormally\(\)**方法來檢查任務是否已經拋出exception或是已經被取消了, 並且可以通過ForkJoinTask的**getException\(\)**方法取得exception. 使用上大概長得像這樣\(擷取自前面的範例程式碼\):  
 ![](/assets/jmm-122.png)  
+  
 getException\(\)回傳Throwable物件, 若任務被取消了則回傳CancellationException. 若任務沒有完成若著沒有拋出exception則回傳null.
 
 ### Fork/Join的實作原理
