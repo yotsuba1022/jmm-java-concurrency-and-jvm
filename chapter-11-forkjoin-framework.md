@@ -151,9 +151,9 @@ ForkJoinTask在執行的時候可能會拋出exception, 但是我們沒辦法於
 
 ForkJoinPool由ForkJoinTask陣列與ForkJoinWorkerThread陣列組成, ForkJoinTask陣列負責存放程式提交給ForkJoinPool的任物, 而ForkJoinWorkerThread陣列則負責執行這些任務.
 
-#### ForkJoinTask的fork方法實作原理:
+#### 1. ForkJoinTask的fork方法實作原理:
 
-當我們呼叫ForkJoinTask的fork方法時, 程式會呼叫ForkJoinWorkerThread的workQueue\(ForkJoinPool.WorkQueue\)的push方法非同步地執行這個任務, 然後立刻回傳結果, 原始碼如下:
+當我們呼叫ForkJoinTask的fork方法時, 程式會呼叫ForkJoinWorkerThread的workQueue\(**ForkJoinPool.WorkQueue**\)的push方法非同步地執行這個任務, 然後立刻回傳結果, 原始碼如下:
 
 ![](/assets/jmm-113.png)
 
@@ -161,7 +161,7 @@ ForkJoinPool由ForkJoinTask陣列與ForkJoinWorkerThread陣列組成, ForkJoinTa
 
 ![](/assets/jmm-114.png)
 
-#### ForkJoinTask的join方法實作原理:
+#### 2. ForkJoinTask的join方法實作原理:
 
 join方法的主要作用是阻塞\(block\)當前執行緒並且等待獲得結果, 其原始碼如下:
 
@@ -171,9 +171,9 @@ join方法的主要作用是阻塞\(block\)當前執行緒並且等待獲得結�
 
 ![](/assets/jmm-116.png)
 
-* 若任務狀態是NORMAL, 則直接回傳任務結果.
-* 若任務狀態是CANCELLED, 則直接拋出CancellationException.
-* 若任務狀態是EXCEPTIONAL, 則直接拋出對應的異常.
+* 若任務狀態是**NORMAL**, 則直接回傳任務結果.
+* 若任務狀態是**CANCELLED**, 則直接拋出CancellationException.
+* 若任務狀態是**EXCEPTIONAL**, 則直接拋出對應的異常.
 
 拋出異常的部份\(reportException\)如下圖:
 
@@ -183,7 +183,7 @@ join方法的主要作用是阻塞\(block\)當前執行緒並且等待獲得結�
 
 ![](/assets/jmm-118.png)
 
-在doJoin中, 首先通過查看任務的狀態, 看是否已經執行完了\(**s &lt; 0, negative means NORMAL**\), 若執行完畢, 則直接回傳任務狀態; 反之, 則從任務陣列裡取出任務並且透過doExec\(\)執行任務, 其中的exec\(\)會由繼承ForkJoinTask的類別實作\(此處由RecursiveTask實作\). 若任務順利執行完了, 則把任務狀態設定為NORMAL; 反之則紀錄exception, 並把任務狀態設為EXCEPTIONAL, doExec\(\)原始碼如下:
+在doJoin中, 首先通過查看任務的狀態, 看是否已經執行完了\(**s &lt; 0, negative means NORMAL**\), 若執行完畢, 則直接回傳任務狀態; 反之, 則從任務陣列裡取出任務並且透過**doExec\(\)**執行任務, 其中的exec\(\)會由繼承ForkJoinTask的類別實作\(此處由RecursiveTask實作\). 若任務順利執行完了, 則把任務狀態設定為NORMAL; 反之則紀錄exception, 並把任務狀態設為EXCEPTIONAL, doExec\(\)原始碼如下:
 
 ![](/assets/jmm-119.png)
 
