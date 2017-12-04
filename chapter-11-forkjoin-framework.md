@@ -42,21 +42,23 @@ Fork/Join使用兩個類別來完成上述的兩件事情:
 
 ### 使用Fork/Join
 
-這邊就用一個簡單的範例來示範怎麼使用Fork/Join, 需求為: 計算1+2+3+4+....+100的結果.
+這邊就用一個簡單的範例來示範怎麼使用Fork/Join, 需求為: **計算1+2+3+4+....+100的結果**.
 
-使用Fork/Join框架首先要考慮到的是如何分割任務, 若我們希望每個子任務最多執行四個數字的相加, 那麼我們可以設置threshold為4, 由於是100個數字相加, 所以Fork/Join框架會把這個任務fork成25個子任務, 子任務一負責計算1+2+3+4, 子任務二負責5+6+7+8, 以此類推, 最後再join所有子任務的結果.
+使用Fork/Join框架首先要考慮到的是如何分割任務, 若我們希望每個子任務最多執行四個數字的相加, 那麼我們可以設置threshold為4, 由於是100個數字相加, 所以Fork/Join框架會把這個任務fork成25個子任務, 子任務一負責計算1+2+3+4, 子任務二負責5+6+7+8 ..., 以此類推, 最後再join所有子任務的結果.
 
-因為這是個有結果\(回傳值\)的任務, 所以必須繼承RecursiveTask, 實作內容如下:
+因為這是個有結果\(回傳值\)的任務, 所以必須繼承**RecursiveTask**, 實作內容如下:
 
-
-
-
+`code here`
 
 通過這個範例我們可以在看更深一點, 關於ForkJoinTask, 其與一般任務之主要區別在於其需要實作compute方法, 在這個方法中, 首先需要判斷任務是否足夠小, 若夠小就直接執行任務; 反之就必須進行任務分割. 每個子任務在呼叫fork方法時, 又會進入compute方法, 看看當前的子任務是否需要繼續往下分割成更多的子任務, 若不需要, 就執行當前子任務並且回傳結果. 使用join方法則會等待子任務執行完成並且得到其結果.
 
-
-
 ### Fork/Join中的Exception Handling
+
+ForkJoinTask在執行的時候可能會拋出exception, 但是我們沒辦法於main thread中直接catch這些exception, 故ForkJoinTask提供了isCompletedAbnormally\(\)方法來檢查任務是否已經拋出exception或是已經被取消了, 並且可以通過ForkJoinTask的getException\(\)方法取得exception. 使用上大概長得像這樣:
+
+
+
+getException\(\)回傳Throwable物件, 若任務被取消了則回傳CancellationException. 若任務沒有完成若著沒有拋出exception則回傳null.
 
 ### Fork/Join的實作原理
 
