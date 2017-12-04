@@ -33,6 +33,13 @@ Work-stealing的缺點: 在某些情況下還是存在競爭, 譬如雙向佇列
 
 第二部, 執行任務並合併結果: 分割的子任務分別放在雙向佇列中, 然後幾個啟動的執行緒分別從雙向佇列裡取得任務並執行. 子任務執行完的結果都統一放在一個佇列裡, 啟動一個執行緒從這個佇列裡拿資料, 並且合併這些資料.
 
+Fork/Join使用兩個類別來完成上述的兩件事情:
+
+* ForkJoinTask: 要使用Fork/Join框架, 必須先建立一個ForkJoin任務. 其提供在任務中執行fork\(\)與join\(\)操作之機制, 通常情況下我們不需要直接繼承ForkJoinTask類別, 而只需要繼承其子類別, 如下:
+  * RecursiveAction: 用於沒有回傳值的任務.
+  * RecursiveTask: 用於有回傳值的任務.
+* ForkJoinPool: ForkJoinTask需要通過ForkJoinPool來執行, 任務分割出的子任務會添加到當前工作執行緒所維護的雙向佇列中, 進入佇列的頭部. 當一個工作執行緒的佇列中暫時沒有任務時, 其會隨機地從其它工作執行緒的佇列之尾部獲取一個任務.
+
 ### 使用Fork/Join
 
 ### Fork/Join中的Exception Handling
