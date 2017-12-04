@@ -157,7 +157,7 @@ ForkJoinPool由ForkJoinTask陣列與ForkJoinWorkerThread陣列組成, ForkJoinTa
 
 ![](/assets/jmm-113.png)
 
-push方法把當前的任務存放在ForkJoinTask陣列queue裡, 然後再呼叫ForkJoinPool的signalWork方法喚醒\(active\)或創造一個工作執行緒來執行任務, 原始碼如下:
+第700行的push方法把當前的任務存放在ForkJoinTask陣列queue裡, 然後再呼叫ForkJoinPool的signalWork方法喚醒\(active\)或創造一個工作執行緒來執行任務, 原始碼如下:
 
 ![](/assets/jmm-114.png)
 
