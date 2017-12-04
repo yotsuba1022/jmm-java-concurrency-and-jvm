@@ -48,7 +48,97 @@ Fork/Join使用兩個類別來完成上述的兩件事情:
 
 因為這是個有結果\(回傳值\)的任務, 所以必須繼承**RecursiveTask**, 實作內容如下:
 
-`code here`
+```java
+package idv.java.ccr.jsr133.forkjoin;
+
+import java.util.concurrent.RecursiveTask;
+
+/**
+ * @author Carl Lu
+ */
+public class CountTask extends RecursiveTask<Integer> {
+
+    private static final int THRESHOLD = 4;
+    private int start;
+    private int end;
+
+    public CountTask(int start, int end) {
+        this.start = start;
+        this.end = end;
+    }
+
+    @Override
+    protected Integer compute() {
+        int sum = 0;
+
+        boolean computable = ( end - start ) <= THRESHOLD;
+
+        if (computable) {
+            for (int i = start; i <= end; i++) {
+                sum += i;
+            }
+        } else {
+            int middle = ( start + end ) / 2;
+            CountTask leftSubTask = new CountTask(start, middle);
+            CountTask rightSubTask = new CountTask(middle + 1, end);
+
+            leftSubTask.fork();
+            rightSubTask.fork();
+
+            int resultOfLeft = leftSubTask.join();
+            int resultOfRight = rightSubTask.join();
+            sum = resultOfLeft + resultOfRight;
+
+            if (leftSubTask.isCompletedAbnormally()) {
+                System.out.println(
+                        "Left sub task completed abnormally, exception message: " + leftSubTask.getException().getMessage());
+            }
+
+            if (rightSubTask.isCompletedAbnormally()) {
+                System.out.println(
+                        "Right sub task completed abnormally, exception message: " + leftSubTask.getException().getMessage());
+            }
+        }
+
+        return sum;
+    }
+}
+
+```
+
+```java
+package idv.java.ccr.jsr133.forkjoin;
+
+import idv.java.ccr.util.ThreadColor;
+
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.Future;
+
+/**
+ * @author Carl Lu
+ */
+public class ForkJoinDemo {
+
+    public static void main(String[] args) {
+
+        ForkJoinPool forkJoinPool = new ForkJoinPool();
+        CountTask task = new CountTask(1, 100);
+        Future<Integer> result = forkJoinPool.submit(task);
+        try {
+            System.out.println(ThreadColor.ANSI_BRIGHT_GREEN + "Sum result of 1 to 100: " + result.get());
+        } catch (InterruptedException | ExecutionException ignore) {
+        }
+
+    }
+
+}
+
+```
+
+執行結果:
+
+![](/assets/jmm-121.png)
 
 通過這個範例我們可以在看更深一點, 關於ForkJoinTask, 其與一般任務之主要區別在於其需要實作compute方法, 在這個方法中, 首先需要判斷任務是否足夠小, 若夠小就直接執行任務; 反之就必須進行任務分割. 每個子任務在呼叫fork方法時, 又會進入compute方法, 看看當前的子任務是否需要繼續往下分割成更多的子任務, 若不需要, 就執行當前子任務並且回傳結果. 使用join方法則會等待子任務執行完成並且得到其結果.
 
@@ -60,51 +150,51 @@ getException\(\)回傳Throwable物件, 若任務被取消了則回傳Cancellatio
 
 ### Fork/Join的實作原理
 
-ForkJoinPool由ForkJoinTask陣列與ForkJoinWorkerThread陣列組成, ForkJoinTask陣列負責存放程式提交給ForkJoinPool的任物, 而ForkJoinWorkerThread陣列則赴則執行這些任務.
+ForkJoinPool由ForkJoinTask陣列與ForkJoinWorkerThread陣列組成, ForkJoinTask陣列負責存放程式提交給ForkJoinPool的任物, 而ForkJoinWorkerThread陣列則負責執行這些任務.
 
+#### ForkJoinTask的fork方法實作原理:
 
+當我們呼叫ForkJoinTask的fork方法時, 程式會呼叫ForkJoinWorkerThread的workQueue\(ForkJoinPool.WorkQueue\)的push方法非同步地執行這個任務, 然後立刻回傳結果, 原始碼如下:  
+  
+![](/assets/jmm-113.png)
 
-#### ForkJoinTask的fork方法實作原理: 
-
-當我們呼叫ForkJoinTask的fork方法時, 程式會呼叫ForkJoinWorkerThread的workQueue\(ForkJoinPool.WorkQueue\)的push方法非同步地執行這個任務, 然後立刻回傳結果, 原始碼如下:
-
-
-
-push方法把當前的任務存放在ForkJoinTask陣列queue裡, 然後再呼叫ForkJoinPool的signalWork方法喚醒\(active\)或創造一個工作執行緒來執行任務, 原始碼如下:
-
-
+push方法把當前的任務存放在ForkJoinTask陣列queue裡, 然後再呼叫ForkJoinPool的signalWork方法喚醒\(active\)或創造一個工作執行緒來執行任務, 原始碼如下:  
+  
+![](/assets/jmm-114.png)
 
 #### ForkJoinTask的join方法實作原理:
 
-join方法的主要作用是阻塞\(block\)當前執行緒並且等待獲得結果, 其原始碼如下:
+join方法的主要作用是阻塞\(block\)當前執行緒並且等待獲得結果, 其原始碼如下:  
+  
+![](/assets/jmm-115.png)
 
-首先, 其呼叫了doJoin\(\), 通過doJoin\(\)得到當前任務的狀態來判斷回傳什麼結果, 任務狀態有四種: NORMAL\(已完成\), CANCELLED\(被取消\), SIGNAL\(信號\)以及EXCEPTIONAL\(出現異常\), 如下圖\(這邊不把MASK當狀態來看待\):
+首先, 其呼叫了doJoin\(\), 通過doJoin\(\)得到當前任務的狀態來判斷回傳什麼結果, 任務狀態有四種: **NORMAL**\(已完成\), **CANCELLED**\(被取消\), **SIGNAL**\(信號\)以及**EXCEPTIONAL**\(出現異常\), 如下圖\(**這邊不把MASK當狀態來看待**\):  
+  
+![](/assets/jmm-116.png)
 
+* 若任務狀態是NORMAL, 則直接回傳任務結果.
+* 若任務狀態是CANCELLED, 則直接拋出CancellationException.
+* 若任務狀態是EXCEPTIONAL, 則直接拋出對應的異常.
 
+拋出異常的部份\(reportException\)如下圖:  
+  
+![](/assets/jmm-117.png)
 
-若任務狀態是NORMAL, 則直接回傳任務結果.
+再來, 看一下doJoin的原始碼:  
+  
+![](/assets/jmm-118.png)
 
-若任務狀態是CANCELLED, 則直接拋出CancellationException.
+在doJoin中, 首先通過查看任務的狀態, 看是否已經執行完了\(**s &lt; 0, negative means NORMAL**\), 若執行完畢, 則直接回傳任務狀態; 反之, 則從任務陣列裡取出任務並且透過doExec\(\)執行任務, 其中的exec\(\)會由繼承ForkJoinTask的類別實作\(此處由RecursiveTask實作\). 若任務順利執行完了, 則把任務狀態設定為NORMAL; 反之則紀錄exception, 並把任務狀態設為EXCEPTIONAL, doExec\(\)原始碼如下:  
+  
+![](/assets/jmm-119.png)
 
-若任務狀態是EXCEPTIONAL, 則直接拋出對應的異常.
-
-
-
-拋出異常的部份\(reportException\)如下圖:
-
-
-
-再來, 看一下doJoin的原始碼:
-
-在doJoin中, 首先通過查看任務的狀態, 看是否已經執行完了\(s &lt; 0, negative means NORMAL\), 若執行完畢, 則直接回傳任務狀態; 反之, 則從任務陣列裡取出任務並且透過doExec\(\)執行任務, 其中的exec\(\)會由繼承ForkJoinTask的類別實作\(此處由RecursiveTask實作\). 若任務順利執行完了, 則把任務狀態設定為NORMAL; 反之則紀錄exception, 並把任務狀態設為EXCEPTIONAL.
-
-
-
-
-
-最後, join中的getRawResult方法則會交由繼承ForkJoinTask的類別實作\(此處為RecursiveTask\), 內容就只是把計算完的結果傳回去而已:
+最後, join中的getRawResult方法則會交由繼承ForkJoinTask的類別實作\(此處為RecursiveTask\), 看起來就只是把計算完的結果傳回去而已:  
+  
+![](/assets/jmm-120.png)
 
 ### 參考資料
+
+* JDK原始碼\(1.8.0\_152\)
 
 
 
