@@ -75,7 +75,7 @@
 
   * sparc-TSO和x86擁有相對較強的處理器記憶體模型, 它們僅允許對寫-讀操作進行重排序\(因為它們都使用了寫緩衝區\)
 
-    * 註1: sparc-TSO是指以TSO\(Total Store Order\)記憶體模型運作時, sparc處理器的性.
+    * 註1: sparc-TSO是指以TSO\(Total Store Order\)記憶體模型運作時, sparc處理器的特性.
 
     * 註2: 上表中的x86包含了x64與AMD64
 
