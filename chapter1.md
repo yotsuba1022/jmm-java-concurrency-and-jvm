@@ -95,8 +95,6 @@
   * **volatile變數規則**: 對一個volatile field的寫入, happens-before於任意後續對這個volatile field的讀取.
   * **遞移律**: 若A happens-before B, 且B happens-before C, 那麼A happens-before C.
 
-
-
 * 值得注意的是, 兩個操作之間具有happens-before關係, 並不意味著前一個操作必須要在後一個操作之前執行, happens-before僅僅要求前一個操作\(執行的結果\)對後一個操作可見, 且前一個操作按順序排在第二個操作之前 \(the first is visible to and ordered before the second\).
 * Happens-before與JMM的關係可用下圖簡單表示:![](/assets/jmm-08.png)
   如上圖所示, 一個happens-before規則通常會對應於多個編譯器重排序規則和處理器重排序規則. 對Java developer來說, happens-before規則簡單易懂, 其避免開發人員為了理解JMM提供的記憶體可見性保證而去學習複雜的重排序規則以及這些規則的具體實作.
