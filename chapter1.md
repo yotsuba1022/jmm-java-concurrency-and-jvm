@@ -90,12 +90,16 @@
 
 * 從JDK5開始, Java使用新的JSR-133記憶體模型\(在這篇筆記裡除非特別說明, 針對的都是JSR-133記憶體模型\)
 * JSR-133提出了happens-before的概念, 通過這個概念來闡述操作之間的記憶體可見性. 若一個操作執行的結果需要對另一個操作可見, 那麼這兩個操作之間必須存在happens-before關係. 這裡提到的兩個操作既可以是在一個執行緒之內, 也可以是在不同執行緒之間. 與軟體開發人員密切相關的happens-before規則如下:
+
   * **程式順序規則**: 一個執行緒中的每個操作, happens-before於該執行緒中的任意後續操作.
   * **Monitor Lock規則**: 對一個Monitor Lock的解鎖, happens-before於隨後對這個monitor lock的上鎖.
   * **volatile變數規則**: 對一個volatile field的寫入, happens-before於任意後續對這個volatile field的讀取.
   * **遞移律**: 若A happens-before B, 且B happens-before C, 那麼A happens-before C.
 
+
+
 * 值得注意的是, 兩個操作之間具有happens-before關係, 並不意味著前一個操作必須要在後一個操作之前執行, happens-before僅僅要求前一個操作\(執行的結果\)對後一個操作可見, 且前一個操作按順序排在第二個操作之前 \(the first is visible to and ordered before the second\).
+
 * Happens-before與JMM的關係可用下圖簡單表示:![](/assets/jmm-08.png)
   如上圖所示, 一個happens-before規則通常會對應於多個編譯器重排序規則和處理器重排序規則. 對Java developer來說, happens-before規則簡單易懂, 其避免開發人員為了理解JMM提供的記憶體可見性保證而去學習複雜的重排序規則以及這些規則的具體實作.
 
