@@ -33,8 +33,6 @@
   * volatile寫與monitor lock的釋放有相同的記憶體語意
   * volatile讀與monitor lock的獲取有相同的記憶體語意
 
-
-
 * 以下程式片段是使用volatile變數的範例程式:  
   ![](/assets/jmm-25.png)
 
@@ -43,6 +41,8 @@
     1. 根據程式順序規則, 1 happens before 2; 3 happens before 4.
     2. 根據volatile規則, 2 happens before 3.  
     3. 根據上述兩條happens before規則與遞移律, 1 happens before 4.
+
+
 
 * 上述happens before關係的圖形化表現形式如下:  
   ![](/assets/jmm-26.png)  
