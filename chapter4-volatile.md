@@ -42,8 +42,6 @@
     2. 根據volatile規則, 2 happens before 3.  
     3. 根據上述兩條happens before規則與遞移律, 1 happens before 4.
 
-
-
 * 上述happens before關係的圖形化表現形式如下:  
   ![](/assets/jmm-26.png)  
   在上圖中, 每一個箭頭所連接的兩個節點, 都代表了一個happens before關係. 紫色箭頭表示程式順序規則; 橙色箭頭表示volatile規則; 湖水綠色箭頭表示組合這些規則後提供的happens before保證.
@@ -63,6 +61,8 @@
 * volatile read的記憶體語意如下:
 
   * 當讀一個volatile變數時, JMM會把該執行緒對應的區域記憶體置為無效. 執行緒接下來將從主記憶體中讀取共享變數.
+
+
 
 * 以下是執行緒B讀同一個volatile變數後, 共享變數的狀態示意圖:  
   ![](/assets/jmm-28.png)  
