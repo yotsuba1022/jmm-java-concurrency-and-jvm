@@ -19,6 +19,8 @@
   * 可見性\(**visibility**\): 對一個volatile變數的讀, 總是能看到\(任意執行緒\)對這個volatile變數最後的寫入.
   * 原子性\(**atomicity**\): 對任意單個volatile變數的讀/寫具有原子性, 但對於volatile++這種複合操作就不具備原子性.
 
+
+
 * 副作用
 
   * 在Java裡, volatile關鍵字有一個副作用: **刷新快取\(flush the cache\), 以便所有其它地方看到資料的最新版本**, 這在大多數情況下其實是很嚴格的, 但這種副作用, 在某些時候也可以用來保障可見性, 這種情況常被稱為"Piggyback", 在下一章節\(Lock\)中, 就可以看到應用此副作用的地方\(CAS\).
@@ -86,8 +88,6 @@
   * 當第二個操作是volatile write時, 不管第一個操作是什麼, 都不能重排序. 這個規則確保volatile write之前的操作不會被編譯器重排序到volatile write之後.
   * 當第一個操作是volatile read時, 不管第二個操作是什麼, 都不能重排序. 這個規則確保volatile read之後的操作不會被編譯器重排序到volatile read之前.
   * 當第一個操作是volatile write, 第二個操作是volatile read時, 不能重排序.
-
-
 
 * 為了實現volatile的記憶體語意, 編譯器在生成byte code時, 會在指令序列中插入記憶體屏障來禁止特定類型的處理器重排序. 對於編譯器來說, 發現一個最佳佈局來最小化插入屏障的總數幾乎不可能, 為此, JMM採取保守策略. 以下是基於保守策略的JMM記憶體屏障插入策略:
 
