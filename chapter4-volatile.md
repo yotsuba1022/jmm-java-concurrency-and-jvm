@@ -19,8 +19,6 @@
   * 可見性\(**visibility**\): 對一個volatile變數的讀, 總是能看到\(任意執行緒\)對這個volatile變數最後的寫入.
   * 原子性\(**atomicity**\): 對任意單個volatile變數的讀/寫具有原子性, 但對於volatile++這種複合操作就不具備原子性.
 
-
-
 * 副作用
 
   * 在Java裡, volatile關鍵字有一個副作用: **刷新快取\(flush the cache\), 以便所有其它地方看到資料的最新版本**, 這在大多數情況下其實是很嚴格的, 但這種副作用, 在某些時候也可以用來保障可見性, 這種情況常被稱為"Piggyback", 在下一章節\(Lock\)中, 就可以看到應用此副作用的地方\(CAS\).
@@ -34,6 +32,8 @@
   * volatile與monitor lock有相同的效果
   * volatile寫與monitor lock的釋放有相同的記憶體語意
   * volatile讀與monitor lock的獲取有相同的記憶體語意
+
+
 
 * 以下程式片段是使用volatile變數的範例程式:  
   ![](/assets/jmm-25.png)
