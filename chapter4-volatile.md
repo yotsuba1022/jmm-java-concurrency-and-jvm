@@ -136,30 +136,33 @@
 * Happens-before rule和volatile記憶體語意的實作不能混淆
   * Happens-before是JMM向我們提供的記憶體可見性保證
   * volatile記憶體語意的實作\(包含volatile的編譯器重排序規則和volatile的記憶體屏障插入策略\), 可以理解為JMM如何去實現這些happens-before
+
+
+
 * 重排序是有分別的
   * 上文提到的JMM針對編譯器制定的**重排序規則表**, 是針對**編譯器**的
   * StoreLoad等**記憶體屏障**則是針對**處理器**的
+
+
+
 * 除了可見性之外, 把物件的參照\(reference\)聲明為volatile還有什麼作用呢?
   * 有, 像是任意執行緒都可以看到這個物件參照的最新值, 以及對這個物件參照的寫-讀可以實現執行緒之間的通信. 但要注意的是, 若物件的狀態在發布後將發生改變, 那就需要額外的同步了, 原因很簡單, 雖然volatile物件參照可以保證物件的安全發布, 但是無法保證物件安全發布後, 某個執行緒對這個物件的狀態\(指物件的member fields\)的更改, 能夠被其他執行緒看到.
+
+
+
 * 關於文中提到的: "當讀一個volatile變數時, JMM會把該執行緒對應的區域記憶體置為無效. 執行緒接下來將從主記憶體中讀取共享變數."
   * 在&lt;Java Concurrency in Practice&gt;的3.1.4節, "Volatile Variables"中, 對volatile有如下描述: **Volatile variables are not cached in registers or in caches where they are hidden from other processors, so a read of a volatile variable always returns the most recent write by any thread.**
     這段話的意思是說: volatile變數不會被"快取"在暫存器或是"快取"在對其它處理器不可見的地方, 因此當前執行緒對一個volatile變數的讀, 總是能讀取到任意執行緒對這個volatile變數最後的寫入.
-
-
 
 * 在&lt;JSR-133: Java Memory Model and Thread Specification&gt;的"3. Informal Semantics" 以及&lt;The Java Language Specification Third Edition&gt;的"17.4.5 Happens-before Order"中, 都定義了以下的volatile規則:
 
   * **A write to a volatile field happens-before every subsequent read of that volatile.**  
     意思是說: 對一個volatile field的寫入, happens-before於任意後續對這個volatile field的讀取. 要注意的是, volatile規則需要一個前提: \(一個執行緒\)寫一個volatile變數之後, \(任意執行緒\)讀取這個volatile變數.
 
-
-
 * Volatile對任意單個volatile變數的讀/寫具有原子性:
 
   * 在&lt;The Java Language Specification Java SE 7 Edition&gt;的17.7章, 有以下描述: **a single write to a non-volatile long or double value is treated as two separate writes. Writes and reads of volatile long and double values are always atomic.**  
     其實這也就是說, Java語言規範不保證對long/double的寫入具有原子性, 但當我們把long/double宣告為volatile後, 對這個變數的寫入就會具有原子性了.
-
-
 
 * Volatile變數的讀取happens-before volatile變數的寫入, 這是否也是正確的呢?
 
