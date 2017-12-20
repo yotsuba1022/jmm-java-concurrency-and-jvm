@@ -77,7 +77,7 @@
 ### volatile記憶體語意的實作
 
 * 再來, 看看JMM如何實作volatile write/read的記憶體語意, 在前面的章節中有提到過重排序分為編譯器重排序與處理器重排序.  
-  為了實現volatile記憶體語意, JMM會分別限制這兩種類型的重排序類型. 下圖是JMM針對編譯器制定的volatile重排序規則表:  
+  為了實現volatile記憶體語意, JMM會分別限制這兩種類型的重排序類型. 下圖是JMM針對**編譯器**制定的volatile重排序規則表:  
   ![](/assets/jmm-29.png)  
   舉例來說, 當程式順序中, 第一個操作為普通變數的讀/寫時, 若第二個操作為volatile write, 則編譯器不能重排序這兩個操作.
 
@@ -105,7 +105,7 @@
 
   這裡的一個小亮點是volatile write後面的StoreLoad屏障. 這個屏障的作用是避免volatile write與後面可能有的volatile read/write操作重排序. 因為編譯器常常無法準確判斷在一個volatile write的後面, 是否需要插入一個StoreLoad屏障\(譬如, 一個volatile write之後方法立刻return\). 為了保證能正確實現volatile的記憶體語意, JMM在這裡採取了保守策略: 在每個volatile write的後面或在每個volatile read的前面插入一個StoreLoad屏障. 從整體執行效率的角度考慮, JMM選擇了在每個volatile write的後面插入一個StoreLoad屏障.
 
-  因為volatile write-read記憶體語意的常見使用模式是: 一個執行緒寫volatile變數, 多個執行緒讀取這個volatile變數. 當讀取的執行緒數量大大超過寫入的執行緒時, 選擇在volatile write之後插入StoreLoad屏障將帶來可觀的執行效率之提升. 從這裡我們可以看到JMM在實現上的一個特點: 首先確保正確性, 然後才去追求執行效率.
+  因為volatile write-read記憶體語意的常見使用模式是: **一個執行緒寫volatile變數, 多個執行緒讀取這個volatile變數.** 當讀取的執行緒數量大大超過寫入的執行緒時, 選擇在volatile write之後插入StoreLoad屏障將帶來可觀的執行效率之提升. 從這裡我們可以看到JMM在實現上的一個特點: 首先確保正確性, 然後才去追求執行效率.
 
 * 下圖是在保守策略下, volatile read插入記憶體屏障後生成的指令順序示意圖:  
   ![](/assets/jmm-31.png)  
@@ -124,11 +124,11 @@
 
 ### JSR-133為何要增強volatile的記憶體語意
 
-* 在JSR-133之前的舊JMM中, 雖然不允許volatile變數之間的重排序, 但舊的JMM允許volatile變數與普通變數之間重排序. 在舊的記憶體模型中, VolatileExample3範例程式可能被重排序成下列順序來執行:  
+* 在JSR-133之前的舊JMM中, 雖然不允許volatile變數之間的重排序, 但**舊的JMM允許volatile變數與普通變數之間重排序**. 在舊的記憶體模型中, VolatileExample3範例程式可能被重排序成下列順序來執行:  
   ![](/assets/jmm-35.png)
 
   在舊的記憶體模型中, 當1和2之間沒有資料相依性時, 1和2之間就可能被重排序\(3與4類似\). 其結果就是: 執行緒B執行4時, 不一定能看到執行緒A在執行1時對共享變數的修改.  
-  因此在舊的記憶體模型中, volatile的write-read沒有monitor lock的release-acquire所具有的記憶體語意. 為了提供一種比monitor lock更輕量級的機制以利執行緒之間的通信, JSR-133決定增強volatile的記憶體語意: 嚴格限制編譯器和處理器對volatile變數與普通變數的重排序, 確保volatile的write-read和監視器的release-acquire一樣, 具有相同的記憶體語意. 從編譯器重排序規則和處理器記憶體屏障插入策略來看, 只要volatile變數與普通變數之間的重排序可能會破壞volatile的記憶體語意, 這種重排序就會被編譯器重排序規則和處理器記憶體屏障插入策略禁止.  
+  因此在舊的記憶體模型中, volatile的write-read沒有monitor lock的release-acquire所具有的記憶體語意. 為了提供一種比monitor lock更輕量級的機制以利執行緒之間的通信, JSR-133決定增強volatile的記憶體語意: **嚴格限制編譯器和處理器對volatile變數與普通變數的重排序, 確保volatile的write-read和monitor的release-acquire一樣, 具有相同的記憶體語意**. 從編譯器重排序規則和處理器記憶體屏障插入策略來看, 只要volatile變數與普通變數之間的重排序可能會破壞volatile的記憶體語意, 這種重排序就會被編譯器重排序規則和處理器記憶體屏障插入策略禁止.  
   由於volatile僅僅保證對單個volatile變數的read/write具有原子性, 而monitor lock的互斥執行之特性可以確保對整個臨界區程式的執行具有原子性. 在功能上, monitor lock比volatile更強大; 在可伸縮性與執行性能上, volatile更有優勢. 若要在程式中使用volatile, 請務必謹慎.
 
 ### 結論
@@ -137,22 +137,29 @@
   * Happens-before是JMM向我們提供的記憶體可見性保證
   * volatile記憶體語意的實作\(包含volatile的編譯器重排序規則和volatile的記憶體屏障插入策略\), 可以理解為JMM如何去實現這些happens-before
 * 重排序是有分別的
-  * 上文提到的JMM針對編譯器制定的重排序規則表, 是針對編譯器的
-  * StoreLoad等記憶體屏障則是針對處理器的
+  * 上文提到的JMM針對編譯器制定的**重排序規則表**, 是針對**編譯器**的
+  * StoreLoad等**記憶體屏障**則是針對**處理器**的
 * 除了可見性之外, 把物件的參照\(reference\)聲明為volatile還有什麼作用呢?
   * 有, 像是任意執行緒都可以看到這個物件參照的最新值, 以及對這個物件參照的寫-讀可以實現執行緒之間的通信. 但要注意的是, 若物件的狀態在發布後將發生改變, 那就需要額外的同步了, 原因很簡單, 雖然volatile物件參照可以保證物件的安全發布, 但是無法保證物件安全發布後, 某個執行緒對這個物件的狀態\(指物件的member fields\)的更改, 能夠被其他執行緒看到.
 * 關於文中提到的: "當讀一個volatile變數時, JMM會把該執行緒對應的區域記憶體置為無效. 執行緒接下來將從主記憶體中讀取共享變數."
   * 在&lt;Java Concurrency in Practice&gt;的3.1.4節, "Volatile Variables"中, 對volatile有如下描述: **Volatile variables are not cached in registers or in caches where they are hidden from other processors, so a read of a volatile variable always returns the most recent write by any thread.**
     這段話的意思是說: volatile變數不會被"快取"在暫存器或是"快取"在對其它處理器不可見的地方, 因此當前執行緒對一個volatile變數的讀, 總是能讀取到任意執行緒對這個volatile變數最後的寫入.
+
+
+
 * 在&lt;JSR-133: Java Memory Model and Thread Specification&gt;的"3. Informal Semantics" 以及&lt;The Java Language Specification Third Edition&gt;的"17.4.5 Happens-before Order"中, 都定義了以下的volatile規則:
 
   * **A write to a volatile field happens-before every subsequent read of that volatile.**  
     意思是說: 對一個volatile field的寫入, happens-before於任意後續對這個volatile field的讀取. 要注意的是, volatile規則需要一個前提: \(一個執行緒\)寫一個volatile變數之後, \(任意執行緒\)讀取這個volatile變數.
 
+
+
 * Volatile對任意單個volatile變數的讀/寫具有原子性:
 
   * 在&lt;The Java Language Specification Java SE 7 Edition&gt;的17.7章, 有以下描述: **a single write to a non-volatile long or double value is treated as two separate writes. Writes and reads of volatile long and double values are always atomic.**  
     其實這也就是說, Java語言規範不保證對long/double的寫入具有原子性, 但當我們把long/double宣告為volatile後, 對這個變數的寫入就會具有原子性了.
+
+
 
 * Volatile變數的讀取happens-before volatile變數的寫入, 這是否也是正確的呢?
 
