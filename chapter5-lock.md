@@ -11,7 +11,7 @@
 
   * 根據程式順序規則, 1 happens before 2, 2 happens before 3; 4 happens before 5, 5 happens before 6.
   * 根據**monitor lock規則**, **3 happens before 4**.
-  * 根據happens before的傳遞性, 2 happens before 5.
+  * 根據happens before的遞移律, 2 happens before 5.
 
 * 上述happens before關係的圖形化表現形式如下:  
   ![](/assets/jmm-37.png)  
@@ -31,6 +31,8 @@
 
   * lock釋放與volatile寫具有相同的記憶體語意.
   * lock獲取與volatile讀具有相同的記憶體語意.
+
+
 
 * 以下對lock釋放與lock獲取的記憶體語意做個總結:
 
