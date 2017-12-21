@@ -12,8 +12,6 @@
   * 對於靜態同步方法, 鎖是**當前物件的class物件**
   * 對於同步方法區塊\(critical region\), 鎖是**synchronized括號裡配置的物件**
 
-
-
 * 當一個執行緒嘗試存取critical region時, 它必須先得到鎖, 而退出critical region或是拋出異常時必須釋放鎖. 再來會談到鎖儲存的位置以及其中儲存的訊息.
 
 ### 同步的原理
