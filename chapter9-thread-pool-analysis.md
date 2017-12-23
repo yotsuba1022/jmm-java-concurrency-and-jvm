@@ -63,7 +63,7 @@
       用於設置建立執行緒的工廠, 可以通過執行緒工廠給每個建立出來的執行緒設定更有意義的名字
 
     * **handler**  
-      RejectedExecutionHandler\(飽和策略\), 即當queue跟thread pool都滿了, 表示thread pool處於飽和狀態, 那麼必須採取一種策略去處理提交的新task. 這個策略預設是AbortPolicy, 表示無法處理新task時拋出exception. 下面是JDK5提供的四種策略:
+      RejectedExecutionHandler\(**飽和策略**\), 即**當queue跟thread pool都滿了, 表示thread pool處於飽和狀態, 那麼必須採取一種策略去處理提交的新task**. 這個策略預設是AbortPolicy, 表示無法處理新task時拋出exception. 下面是JDK5提供的四種策略:
 
       * **ThreadPoolExecutor.AbortPolicy**: 直接拋出runtime exception \(**RejectedExecutionException**\).
 
