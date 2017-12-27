@@ -54,5 +54,5 @@
 * **Native Pointer**: 對這種方式來說, Java Heap物件的佈局就要考慮如何放置class data, 而reference中儲存的就直接是物件的address, 如下圖所示:  
   ![](/assets/3-2-2.png)
 
-其實這兩種方式各有優缺點, 以handle來說, 好處就是reference中儲存的是穩定的handle address, 當你的物件被移動了\(GC時移動物件是很常見的事情\), 只會改變handle中的pointer, 而reference本身不用改. 至於native pointer, 好處就是速度快, 也省了一次pointer定位的時間開銷, 畢竟若物件的存取次數頻繁, 這累積下來也是很可觀的成本. 對於Hotspot而言, 其使用的是native pointer.
+其實這兩種方式各有優缺點, 以handle來說, 好處就是reference中儲存的是穩定的handle address, 當你的物件被移動了\(GC時移動物件是很常見的事情\), 只會改變handle中的pointer, 而reference本身不用改. 至於native pointer, 好處就是速度快, 也省了一次pointer定位的時間開銷, 畢竟若物件的存取次數頻繁, 這累積下來也是很可觀的成本. **對於Hotspot而言, 其使用的是native pointer**.
 
