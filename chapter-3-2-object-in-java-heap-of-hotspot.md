@@ -48,31 +48,11 @@
 
 我們建立物件就是為了要使用物件, Java程式需要通過JVM Stack上的reference資料來操作Java Heap的具體物件. 由於reference type在JVM規格中只規定了一個指向物件的參照, 並沒有定義這個參照要通過何種方式去定位/存取heap中的物件的具體位置, 所以這也是看實際的廠商要怎麼實作VM來決定的, 目前常見的有以下兩種:
 
-* Handle Access Mode: 用這種方式的話, Java Heap中會畫分出一塊記憶體作為handle pool, reference中存的就是物件的handle address, 而handle中包含了物件instance data與class data各自的具體address, 如下圖所示:
+* **Handle**: 這個我不知道中文叫什麼, 簡體中文叫句柄, 但我實在不懂為什麼要這樣叫. 用這種方式的話, Java Heap中會畫分出一塊記憶體作為handle pool, reference中存的就是物件的handle address, 而handle中包含了物件instance data與class data各自的具體address, 如下圖所示:  
   ![](/assets/3-2-1.png)
 
-* Native Pointer: 對這種方式來說, Java Heap物件的佈局就要考慮如何放置class data, 而reference中儲存的就直接是物件的address, 如下圖所示:
+* **Native Pointer**: 對這種方式來說, Java Heap物件的佈局就要考慮如何放置class data, 而reference中儲存的就直接是物件的address, 如下圖所示:  
   ![](/assets/3-2-2.png)
 
 其實這兩種方式各有優缺點, 以handle來說, 好處就是reference中儲存的是穩定的handle address, 當你的物件被移動了\(GC時移動物件是很常見的事情\), 只會改變handle中的pointer, 而reference本身不用改. 至於native pointer, 好處就是速度快, 也省了一次pointer定位的時間開銷, 畢竟若物件的存取次數頻繁, 這累積下來也是很可觀的成本. 對於Hotspot而言, 其使用的是native pointer.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
