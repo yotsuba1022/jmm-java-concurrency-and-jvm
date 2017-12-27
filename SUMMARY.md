@@ -9,6 +9,7 @@
 * [Chapter 1-4.1 More About Volatile](chapter41-more-about-volatile.md)
 * [Chapter 1-5. Lock](chapter5-lock.md)
 * [Chapter 1-5.1 Synchronized](chapter51-synchronized.md)
+* [Chapter 1-5.2 Synchronized v.s. Lock](chapter-1-52-synchronized-vs-lock.md)
 * [Chapter 1-6. Final](chapter6-final.md)
 * [Chapter 1-7. DCL and Lazy Initialization](1111111.md)
 * [Chapter 1-8. Summary](chapter8-summary.md)
