@@ -6,7 +6,10 @@
    原文系列連結: [點我](http://www.infoq.com/cn/profile/程晓明)
 
 2. InfoQ - 聊聊並發 ... 方騰飛  
-   原文系列連結: [點我](http://www.infoq.com/cn/profile/%E6%96%B9%E8%85%BE%E9%A3%9E)
+   原文系列連結: [點我](http://www.infoq.com/cn/profile/方腾飞)
+
+3. 深入理解Java虛擬機:JVM高級特性與最佳實踐\(第2版\) ... 周志明  
+   書籍連結: [點我](https://www.tenlong.com.tw/products/9787111421900)
 
 
 
