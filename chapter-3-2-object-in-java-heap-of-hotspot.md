@@ -26,7 +26,7 @@
 
 3. **將分配到的記憶體空間都初始化為預設值**: 這個動作不包含物件頭\(Object Header, 之後會提到\), 若啟用TLAB, 也可在TLAB分配時就進行. 這個步驟主要是要保證物件的instance field在Java code中可以不assign init value就能直接使用, 程式可以存取到這些field的資料類型所對應的預設值.
 
-4. **對物件進行必要的設置**:
+4. **對物件進行必要的設置**: 譬如說這個物件是哪個類別的instance, 怎麼找到class的meta information, object hash code, object的GC
 
 ### 物件的記憶體佈局
 
