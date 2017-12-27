@@ -17,11 +17,9 @@
 
 * **Runtime Constant Pool**: 這區是Method Area的一部份. Class文件中除了有類別的版號, fields, method, interface等描述訊息外, 還有一項是Constant Pool Table, 用於存放編譯時期生成的各種literal/symbolic references, 這部分內容將在class loading後進入方法區的Runtime Constant Pool存放. 由於此區是Method Area的子集合, 故當其無法再申請到記憶體時, 也是會拋出OOM.
 
+* **Direct Memory**: 這個區塊並不是JVM運作時的資料區塊的一部分, 也不在JVM規格中所定義的記憶體區塊, 但在使用NIO的某些場景下, 此區也會產生OOM. 從另一個角度來看, 此區的分配不會受到Java Heap大小的限制, 但是還是會受到local machine的記憶體大小與處理器尋址空間的限制, 所以在配置-Xmx等參數的時候, 若不小心忽略了此區,  使得各記憶體區塊總和大於物理記憶體限制, 就有可能在動態擴增時產生OOM.
 
-
-
-
-* **Direct Memory**:
+ 
 
 以上就是JVM中常見的各個資料區塊
 
