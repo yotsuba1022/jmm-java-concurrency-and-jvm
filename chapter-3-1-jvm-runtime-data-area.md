@@ -9,11 +9,14 @@
   * StackOverFlow: 若執行緒請求的stack深度大於VM所允許的深度, 就會拋出此異常.
   * OutOfMemory: 若此區可以自動擴增, 但擴增時要不到足夠的記憶體, 就會拋出此異常.
 
-
-
 * **Native Method Stack**: 這個區塊跟JVM Stack很相似, 差異在於JVM Stack主要執行Java method\(byte code\), 但此區塊主要執行native method. 由於JVM規格並沒有對這區做太多的規範, 所以有的VM, 如HotSpot, 就乾脆直接把這區塊跟JVM Stack~~摻在一起做撒尿牛丸了~~. 關於此區塊, JVM規格中也定義了StackOverFlow/OutOfMemory兩種異常.
 
-* **Java Heap**:
+* **Java Heap**: 對大多數應用程式來說, 這個區塊是JVM管理的記憶體區塊中最大的一塊. 此區塊是被所有的執行緒共享的一塊區域, 在VM啟動後建立. 此區塊的唯一目的就是儲存物件的實例\(object instance\), 基本上所有的物件實例都會在這裡分配記憶體. 在JVM規格中對於這點的描述是: "The heap is the runtime area from which memoty for all class instances and arrays is allocated.", 當然, 也是有例外的. 此區塊也是GC管理的主要區域, 所以又稱為Garbage Collected Heap\(不是垃圾堆...\). 從記憶體回收的角度來看, 由於現在的collector基本上都採用分代收集演算法, 所以此區還可以細分為新生代\(Young Generation\)與老年代\(Tenured Generation\), 新生代一般來說又可分為Eden/From Survivor/To Survivor三個區塊. 從記憶體分配的角度來看, 此區還可能劃分出多個執行緒私有的分配緩衝區\(Thread Local Allocation Buffer, TLAB\). 根據JVM規格, 此區塊可以處於物理上不連續的記憶體空間中, 只要邏輯上是連續的即可, 就如同磁碟空間一般. 此區的大小可透過參數-Xmx/-Xms控制, 若此區中沒有足夠的記憶體完成instance分配,  且也無法再擴增時, 就會拋出OOM.
+
+
+
+
+
 * **Method Area**:
 * **Runtime Constant Pool**:
 * **Direct Memory**:
