@@ -25,7 +25,7 @@
 * [Chapter 3-5. GC - GC Algorithms](chapter-3-5-gc-gc-algorithms.md)
 * [Chapter 3-6. GC - HotSpot Implementations](chapter-3-6-gc-hotspot-implementations.md)
 * [Chapter 3-7. GC - Garbage Collectors](chapter-3-7-gc-garbage-collectors.md)
-* Chapter 3-8. GC - How to Read GC Logs?
+* [Chapter 3-8. GC - How to Read GC Logs?](chapter-3-8-gc-how-to-read-gc-logs.md)
 * Chapter 3-9. GC - Memory Allocation Demo
 * [Appendix](appendix.md)
 * [Reference](reference.md)
