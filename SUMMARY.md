@@ -17,7 +17,7 @@
 * [Chapter 2-1. Thread Pool Analysis](chapter9-thread-pool-analysis.md)
 * [Chapter 2-2. The Implementation of Atomic Operations](chapter10-the-implementation-of-atomic-operations.md)
 * [Chapter 2-3. Fork/Join Framework](chapter-11-forkjoin-framework.md)
-* [Part3. JVM](part3-jvm.md)
+* [Part 3. JVM](part3-jvm.md)
 * [Chapter 3-1. JVM Runtime Data Area](chapter-3-1-jvm-runtime-data-area.md)
 * [Chapter 3-2. Object in Java Heap of HotSpot](chapter-3-2-object-in-java-heap-of-hotspot.md)
 * [Appendix](appendix.md)
