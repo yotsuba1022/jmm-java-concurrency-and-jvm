@@ -17,6 +17,7 @@
 * [Chapter 2-2. The Implementation of Atomic Operations](chapter10-the-implementation-of-atomic-operations.md)
 * [Chapter 2-3. Fork/Join Framework](chapter-11-forkjoin-framework.md)
 * [Part3. JVM](part3-jvm.md)
+* [Chapter 3-1. JVM Runtime Data Area](chapter-3-1-jvm-runtime-data-area.md)
 * [Appendix](appendix.md)
 * [Reference](reference.md)
 
