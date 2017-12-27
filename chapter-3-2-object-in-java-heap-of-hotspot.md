@@ -26,7 +26,9 @@
 
 3. **將分配到的記憶體空間都初始化為預設值**: 這個動作不包含物件頭\(Object Header, 之後會提到\), 若啟用TLAB, 也可在TLAB分配時就進行. 這個步驟主要是要保證物件的instance field在Java code中可以不assign init value就能直接使用, 程式可以存取到這些field的資料類型所對應的預設值.
 
-4. **對物件進行必要的設置**: 譬如說這個物件是哪個類別的instance, 怎麼找到class的meta information, object hash code, object的GC
+4. **對物件進行必要的設置**: 譬如說這個物件是哪個類別的instance, 怎麼找到class的meta information, object hash code, object的Generational GC Age\(分代年齡\)的資訊. 這些資訊基本上都放在物件的物件頭\(Object Header\)中. 根據JVM當前運行狀態的不同, 如是否啟用biased locking等\(參閱Chapter 1-5.1 Synchronized\), 物件頭會有不同的設定方式.
+
+在以上步驟都結束之後, 一個新的物件基本上就產生了, 但從Java程式的角度來看, 物件的建立才剛要開始, 因為init方法還沒執行, 所有的field都還沒有根據開發者的意願進行初始化, 等這部分也完成, 一個真正可用的物件才算是完全產生出來.
 
 ### 物件的記憶體佈局
 
