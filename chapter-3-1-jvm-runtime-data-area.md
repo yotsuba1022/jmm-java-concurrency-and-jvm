@@ -15,11 +15,12 @@
 
 * **Method Area**: 此區同Java Heap, 是各執行緒共享的記憶體區域, 用於儲存已經被JVM加載的class information/constant/static constant等資料. 其又有一個別名叫做Non-Heap, 目的應該是想跟Java Heap做個區隔. GC行為在這區是比較少出現的, 因為在這區回收的CP值並不是那麼的高, 譬如說對於class的unloading\(其條件很嚴苛\). 此區無法滿足記憶體分配需求時, 會拋出OOM.
 
+* **Runtime Constant Pool**: 這區是Method Area的一部份. Class文件中除了有類別的版號, fields, method, interface等描述訊息外, 還有一項是Constant Pool Table, 用於存放編譯時期生成的各種literal/symbolic references, 這部分內容將在class loading後進入方法區的Runtime Constant Pool存放. 由於此區是Method Area的子集合, 故當其無法再申請到記憶體時, 也是會拋出OOM.
 
 
 
 
-* **Runtime Constant Pool**:
+
 * **Direct Memory**:
 
 以上就是JVM中常見的各個資料區塊
