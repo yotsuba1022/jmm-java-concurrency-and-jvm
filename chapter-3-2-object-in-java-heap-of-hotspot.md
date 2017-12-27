@@ -32,7 +32,15 @@
 
 ### 物件的記憶體佈局
 
-12
+在HotSpot中, 物件在記憶體中儲存的佈局可以分成以下三塊:
+
+* **Object Header**: 物件頭基本上分成兩部分, 如下所述.
+  a. **Mark Word**: 儲存物件自身的runtime data, 像是hash code, Generational GC Age, lock status flag, 執行緒持有的lock, biased thread id等等, 這部分的資料長度在32/64位元的JVM中分別為32bit/64bit. 物件頭資訊是與物件自身定義的資料無關的額外儲存成本, 考慮到JVM的空間效率, mark word被設計成一個非固定的資料結構以便在極小的空間內儲存盡可能多的資訊, 其會根據物件的狀態重用自己的儲存空間, 這部分可參閱Chapter 1-5.1 Synchronized.  
+  
+  b. **Klass Pointer**: 此即物件指向其class metadata的指標, JVM通過這個指標來確定這個物件是哪個class的instance. 不過並不是所有的JVM實作都要靠這個東西, 換句話說, 找metadata不一定要經過物件本身, 這個後面會提到. 這邊要額外提的是, 若物件是一個Java陣列, 那在物件頭中還必須有一塊用來記錄陣列長度的資料, 因為從物件的metadata可以確定Java物件的大小, 但是從陣列的metadata不能確定陣列的大小.
+
+* **Instance Data**:
+* **Padding**:
 
 ### 物件的存取定位
 
