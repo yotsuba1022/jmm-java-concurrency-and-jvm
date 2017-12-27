@@ -16,6 +16,7 @@
 * [Chapter 9. Thread Pool Analysis](chapter9-thread-pool-analysis.md)
 * [Chapter 10. The Implementation of Atomic Operations](chapter10-the-implementation-of-atomic-operations.md)
 * [Chapter 11. Fork/Join Framework](chapter-11-forkjoin-framework.md)
+* [Part3. JVM](part3-jvm.md)
 * [Appendix](appendix.md)
 * [Reference](reference.md)
 
