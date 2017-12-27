@@ -22,7 +22,7 @@
 * [Chapter 3-2. Object in Java Heap of HotSpot](chapter-3-2-object-in-java-heap-of-hotspot.md)
 * [Chapter 3-3. DIY Exception](chapter-3-3-diy-exception.md)
 * [Chapter 3-4. GC - Basics](chapter-3-4-gc-basics.md)
-* Chapter 3-5. GC - GC Algorithms
+* [Chapter 3-5. GC - GC Algorithms](chapter-3-5-gc-gc-algorithms.md)
 * Chapter 3-6. GC - HotSpot Implementations
 * Chapter 3-7. GC - Garbage Collectors
 * Chapter 3-8. GC - How to Read GC Logs?
