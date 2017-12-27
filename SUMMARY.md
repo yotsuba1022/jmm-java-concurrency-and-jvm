@@ -19,6 +19,7 @@
 * [Chapter 2-3. Fork/Join Framework](chapter-11-forkjoin-framework.md)
 * [Part3. JVM](part3-jvm.md)
 * [Chapter 3-1. JVM Runtime Data Area](chapter-3-1-jvm-runtime-data-area.md)
+* [Chapter 3-2. Object in Java Heap of HotSpot](chapter-3-2-object-in-java-heap-of-hotspot.md)
 * [Appendix](appendix.md)
 * [Reference](reference.md)
 
