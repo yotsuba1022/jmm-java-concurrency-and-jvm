@@ -51,27 +51,28 @@ Parallel Scavenge Collector的老年代版本, 使用**多執行緒**. 此collec
 
 ### CMS Collector \(Mark-Sweep Algorithm\)
 
-CMS\(Concurrent Mark Sweep\)是一種以獲取最短回收停頓時間為主要關注點的collector. 對於目前很多集中在internet website或是B/S系統的Java application來說, 服務的回應速度是很重要的, 所以也希望停頓時間可以越短越好, 以帶來更好的UX. 這時候CMS就是很好的選擇.
+CMS\(Concurrent Mark Sweep\)是一種**以獲取最短回收停頓時間為主要關注點**的collector. 對於目前很多集中在internet website或是B/S系統的Java application來說, 服務的回應速度是很重要的, 所以也希望停頓時間可以越短越好, 以帶來更好的UX. 這時候CMS就是很好的選擇.
 
-不過, CMS跟前面幾種collector比起來, 其運作方式又更複雜了一點, 基本上分為以下四個步驟
+不過, CMS跟前面幾種collector比起來, 其運作方式又更複雜了一點, 基本上分為以下四個步驟:
 
-1. 初始標記 \(CMS initial mark, STW required\): 就只是標記一下GC Roots能直接關連到的物件而已, 這步動作還算快.
-2. 並發標記 \(CMS concurrent mark\): 並發地進行GC Roots Tracing, 最慢的大概就是這步了, 但是可以同時跟client code一起運作.
-3. 重新標記 \(CMS remark, STW required\): 這裡是為了修正並發標記期間因為client code繼續運作而導致標記產生變動的那一部分物件的標記紀錄, 此階段會比初始標記稍微久一點, 但遠比並發標記要短.
-4. 並發清除 \(CMS concurrent sweep\): 就是並發的清垃圾, 可以跟client code一起運作.
+1. **初始標記 \(CMS initial mark, STW required\)**: 就只是標記一下GC Roots能直接關連到的物件而已, 這步動作還算快.
+2. **並發標記 \(CMS concurrent mark\)**: 並發地進行GC Roots Tracing, 最慢的大概就是這步了, 但是可以同時跟client code一起運作.
+3. **重新標記 \(CMS remark, STW required\)**: 這裡是為了修正並發標記期間因為client code繼續運作而導致標記產生變動的那一部分物件的標記紀錄, 此階段會比初始標記稍微久一點, 但遠比並發標記要短.
+4. **並發清除 \(CMS concurrent sweep\)**: 就是並發的清垃圾, 可以跟client code一起運作.
 
-這邊可以回想一下Serial Collector時候提到: "你媽在打掃, 你就在旁邊待著的情境". 在應用CMS的場合來說, 會變成: "你媽在打掃的同時, 你還可以在旁邊繼續丟垃圾\(~~你之後會不會被你媽收掉我不知道~~\)".
+這邊可以回想一下Serial Collector時候提到: "你媽在打掃, 你就在旁邊待著的情境". 在應用CMS的場合來說, 會變成: "**你媽在打掃的同時, 你還可以在旁邊繼續丟垃圾\(**~~**你之後會不會被你媽收掉我不知道**~~**\)**".
 
-到這裡, 我們可以看到CMS的幾個優點: 並發收集, 低停頓, 所以其也被稱為低停頓收集器\(Concurrent Low Pause Collector\). 不過世界上沒有任何東西是完美的, 基本上, CMS有3個明顯的缺點:
+到這裡, 我們可以看到CMS的幾個優點: **並發收集, 低停頓,** 所以其也被稱為低停頓收集器\(Concurrent Low Pause Collector\). 不過世界上沒有任何東西是完美的, 基本上, CMS有3個明顯的缺點:
 
-* 對CPU資源非常敏感: 基本上, 只要扯到concurrent, 對CPU都會很敏感, 因為在並發階段, 其雖然不會導致client code停頓, 但是會因為佔用了一部分執行緒\(或是說CPU資源\)而導致應用程式變慢, 進而導致總吞吐量下降. CMS預設會啟動的回收執行緒數量是: \(CPU數量 + 3\) / 4, 就是說, 當CPU數量在4個以上時, 並發回收時收集垃圾的執行緒不會低於25%的CPU資源, 且會隨著CPU數量的遞增下降. 但是當CPU不足4個的時候\(譬如雙CPU\), CMS對client code的影響就很大了, 試想若本來CPU loading就很大了, 還要分一半的運算能力去收垃圾, 就是說執行速度被腰斬了. 為了對付這種情況, CMS還有衍生出另一個變種 --- i-CMS\(Incremental Concurrent Mark Sweep\), 其原理是在並發標記/清除的時候讓GC執行緒跟client執行緒交替運作, 以期減少CPU被GC執行緒佔用的時間, 但這樣整個收垃圾的時間就會被拉長了, 而實驗證明, 這東西好像也沒那麼有用, 所以現在已經被標為deprecated了.
+* **對CPU資源非常敏感**: 基本上, 只要扯到concurrent, 對CPU都會很敏感, 因為在並發階段, 其雖然不會導致client code停頓, 但是會因為佔用了一部分執行緒\(或是說CPU資源\)而導致應用程式變慢, 進而導致總吞吐量下降. CMS預設會啟動的回收執行緒數量是: **\(CPU數量 + 3\) / 4**, 就是說, **當CPU數量在4個以上時, 並發回收時收集垃圾的執行緒不會低於25%的CPU資源, 且會隨著CPU數量的遞增下降**. 但是**當CPU不足4個的時候\(譬如雙CPU\), CMS對client code的影響就很大了**, 試想若本來CPU loading就很大了, 還要分一半的運算能力去收垃圾, 就是說執行速度被腰斬了. 為了對付這種情況, CMS還有衍生出另一個變種 --- i-CMS\(Incremental Concurrent Mark Sweep\), 其原理是在並發標記/清除的時候讓GC執行緒跟client執行緒交替運作, 以期減少CPU被GC執行緒佔用的時間, 但這樣整個收垃圾的時間就會被拉長了, 而實驗證明, 這東西好像也沒那麼有用, 所以現在已經被標為deprecated了.
 
-* 無法處理浮動垃圾\(Floating Garbage\): 這會在並發清除的階段出現, 因為並發清除的時候, client code還在繼續運作, 所以自然就有可能會有新的垃圾不斷產生, 就是剛才說的你媽在掃地你還在旁邊繼續丟. 這部分的垃圾是出現在標記過程之後的, 所以CMS無法在當前這次的收集中就清掉它們, 只好等下次GC再收, 這種垃圾就叫做浮動垃圾. 其隱含了一個問題就是可能會出現"Concurrent Mode Failure"而導致另一次Full GC的產生. 由於在GC階段的時候, client還是要繼續運行, 這就表示還需要預留有足夠的記憶體空間給client執行緒使用, 因此CMS不能像其他collector一樣等到老年代幾乎要塞爆了才開始收集, 需要先預留一部分空間提供並發收集時的程式運作使用. 關於這部分, 可以透過調整"-XX:CMSInitiatingOccupancyFraction"參數來調整觸發的百分比, 在JDK1.6中, 其threshold已經提高至92%. 要是CMS運作期間, 預留的記憶體空間無法滿足程式的需求, 就會出現"Concurrent Mode Failure", 這時JVM就會啟動之前提到的備援方案: 臨時啟動Serial Old Collector來重新進行老年代的收垃圾作業, 這樣停頓時間就會變長了. 所以說, "-XX:CMSInitiatingOccupancyFraction"設定的太高的話, 很容易導致大量的"Concurrent Mode Failure", 性能反而會降低.
+* **無法處理浮動垃圾\(Floating Garbage\)**: 這會在**並發清除**的階段出現, 因為並發清除的時候, client code還在繼續運作, 所以自然就有可能會有新的垃圾不斷產生, 就是剛才說的**你媽在掃地你還在旁邊繼續丟**. **這部分的垃圾是出現在標記過程之後的, 所以CMS無法在當前這次的收集中就清掉它們, 只好等下次GC再收, 這種垃圾就叫做浮動垃圾**. 其隱含了一個問題就是可能會出現"Concurrent Mode Failure"而導致另一次Full GC的產生. 由於在GC階段的時候, client還是要繼續運行, 這就表示**還需要預留有足夠的記憶體空間給client執行緒使用, 因此CMS不能像其他collector一樣等到老年代幾乎要塞爆了才開始收集, 需要先預留一部分空間提供並發收集時的程式運作使用**. 關於這部分, 可以透過調整"**-XX:CMSInitiatingOccupancyFraction**"參數來調整觸發的百分比, 在JDK1.6中, 其threshold已經提高至92%. **要是CMS運作期間, 預留的記憶體空間無法滿足程式的需求, 就會出現"Concurrent Mode Failure"**, 這時JVM就會啟動之前提到的備援方案: **臨時啟動Serial Old Collector來重新進行老年代的收垃圾作業, 這樣停頓時間就會變長了**. 所以說, "-XX:CMSInitiatingOccupancyFraction"設定的太高的話, 很容易導致大量的"Concurrent Mode Failure", 性能反而會降低.
 
-* 基於Mark-Sweep: 這其實就表示**會有大量空間碎片產生**. 碎片過多就表示分配記憶體給大物件的時候會有麻煩, 譬如說**老年代明明就還有很多空間, 但是都是很零散的, 單一空間不夠大的那種, 這時候就只好來一次Full GC了**. 針對這個問題, CMS提供了以下兩個參數: 
-  * **-XX:+UseCMSCompactAtFullCollection**: 這是一個開關參數\(預設是打開的\), 用在當CMS快要hold不住且要進行Full GC時開啟記憶體碎片的合併整理過程, 要注意的是, 記憶體整理的過程是無法並發的, 空間碎片的問題解決了, 但停頓時間就是得加長.
+* **基於Mark-Sweep**: 這其實就表示**會有大量空間碎片產生**. 碎片過多就表示分配記憶體給大物件的時候會有麻煩, 譬如說**老年代明明就還有很多空間, 但是都是很零散的, 單一空間不夠大的那種, 這時候就只好來一次Full GC了**. 針對這個問題, CMS提供了以下兩個參數:
 
-  * **-XX:CMSFullGCsBeforeCompaction**: 這個參數用於設置執行多少次不壓縮的Full GC後, 跟著來一次帶壓縮的\(預設是0, 表示每次發生Full GC都進行碎片整理\).
+  * **-XX:+UseCMSCompactAtFullCollection**: 這是一個開關參數\(預設是打開的\), 用在當CMS快要hold不住且要進行Full GC時開啟記憶體碎片的合併整理過程, 要注意的是, **記憶體整理的過程是無法並發的**, 空間碎片的問題解決了, 但停頓時間就是得加長.
+
+  * **-XX:CMSFullGCsBeforeCompaction**: 這個參數用於設置執行多少次不壓縮的Full GC後, 跟著來一次帶壓縮的\(**預設是0, 表示每次發生Full GC都進行碎片整理**\).
 
 ### G1 Collector
 
