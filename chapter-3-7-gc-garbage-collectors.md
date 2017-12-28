@@ -2,19 +2,41 @@
 
 在Chapter3-5中已經簡單地介紹了GC演算法, 其就相當於是記憶體回收的方法論, 而這篇要介紹的各種Garbage Colletor就是記憶體回收的具體實作了. JVM規格中並沒有去規定要怎麼實作Garbage Colletor, 所以各個廠商所提供的collector可能就會有很大的差別, 且一般都會提供參數以供使用者根據自己的應用程式特性與需求去組合出適用於各年代的collector. 這篇會介紹的collector基本上都是基於JDK1.7u14之後的HotSpot VM, 其所包含的所有collector如下圖所示:
 
-### Serial Collector
+### Serial Collector \(Copying Algorithm\)
 
 這是最基本且歷史最悠久的collector, 從它的名字可以得知其是一個**單執行緒的collector**, 其"單執行緒"的意義並不僅止於說明其**只會用一個CPU或是一條執行緒去收垃圾**, 更重要的是它在收垃圾的時候, **必須暫停其它所有正在正常工作的執行緒, 直到它收完垃圾為止**. 這就是前面提到的"Stop The World". STW這項工作基本上是由JVM在後台自動啟動與完成的 --- 在使用者不可見的情況下把使用者正常工作的執行緒全都停掉. 聽起來很討厭, 但你可以這樣想: **你媽在打掃房間的時候應該也會叫你在旁邊別亂動然後別同時繼續給她製造垃圾, 或是乾脆叫你滾出房間, 不然你媽一邊打掃你一邊在亂, 你媽可能會先打掃你而不是打掃房間了**. 這聽起來就合理多了, 而且GC這件事比你媽打掃房間還複雜就是了.
 
-可能你會覺得這個collector很廢, 但到目前為止, 其仍然是JVM在client mode下預設的新生代collector. 畢竟相較於其他比較新的collector, serial collector有一個優點: **簡單且高效能\(當然是說跟其它collector的單執行緒相比\)**, 對於限定單CPU的環境來說, 此collector因為沒有執行緒互動的開銷, 所以專心做收垃圾這件事情自然可以獲得最高的單執行緒收集效率. 這就是為什麼對於運作在client mode下的JVM來說, serial collector仍然是一個不錯的選擇的原因.
+可能你會覺得這個collector很廢, 但到目前為止, 其仍然是JVM在client mode下預設的新生代collector. 畢竟相較於其他比較新的collector, Serial Collector有一個優點: **簡單且高效能\(當然是說跟其它collector的單執行緒相比\)**, 對於限定單CPU的環境來說, 此collector因為沒有執行緒互動的開銷, 所以專心做收垃圾這件事情自然可以獲得最高的單執行緒收集效率. 這就是為什麼對於運作在client mode下的JVM來說, Serial Collector仍然是一個不錯的選擇的原因.
 
-### ParNew Collector
+### ParNew Collector \(Copying Algorithm\)
 
-padding
+ParNew基本上就是**Serial Collector的多執行緒版本**, 除了使用多條執行緒進行收集之外, 其餘行為包含Serial Collector可用的所有控制參數\(-XX:SurvivorRatio, -XX:PretenureSizeThreshold, -XX:HandlePromotionFailure等\), 收集演算法, STW, 物件分配規則, 回收策略等都與Serial Collector完全一樣. 這聽起來好像沒有什麼特別之處, 但ParNew卻是許多運作在server mode下的JVM中首選的新生代collector, 另外還有一個與性能無關但很重要的一點: **除了Serial Collector之外, ParNew是唯一一個能與CMS合作的新生代collector**. 通常當你在VM options中指定了"**-XX:+UseConcMarkSweepGC**"後, 預設的新生代collector就會變成ParNew, 當然也可以使用"**-XX:+UseParNewGC**"來指定.
 
-### Parallel Scavenge Collector
+ParNew在單CPU的環境中, 基本上不會有比Serial Collector更優秀的表現, 甚至由於存在執行緒互動的開銷, 儘管在Hyper-Threading的CPU環境下也不能保證能夠超越Serial Collector. 當然, 隨著可用CPU的數量之遞增, 其對於GC時系統資源的有效利用還是有好處的. 其默認啟動的收集執行緒數量與CPU的數量相等, 若你的CPU很多, 可以用"**-XX:ParallelGCThreads**"來限制用於GC的執行緒數量.
 
-padding
+### Parallel Scavenge Collector \(Copying Algorithm\)
+
+這是一個用於新生代的collector, 且還是平行的多執行緒collector, 這感覺上跟ParNew很像, 但是其關注點與別的collector是不同的, Parallel Scavenge Collector最在意的是要可以達到一個可控制的吞吐量\(Throughput\). 這邊的吞吐量指的是說CPU用於執行client code的時間與CPU總消耗時間的比值, 寫成算式就是這樣:
+
+**Throughput = \(Time for running client code\) / \(Time for running client code + Time for GC\)**
+
+假設JVM運作了100分鐘, 其中收垃圾花了1分鐘, 那吞吐量就是: 99%
+
+高吞吐量可以高效率地利用CPU時間, 盡快完成程式的運算任務, 主要適合在**後台運算且不需要太多互動的任務**.
+
+此collector提供了兩個用於精確控制吞吐量的參數:
+
+* **-XX:MaxGCPauseMillis**: **控制最大GC停頓時間**, 此參數允許的值是一個大於0的毫秒數, collector會盡可能地保證記憶體回收所花費的時間不超過設定值. 但你也**不要以為把這個參數設定得很小就可以讓系統的GC速度變快**, 因為**GC停頓時間的縮短基本上都是用犧牲吞吐量以及新生代空間換來的**: 你把新生代調小一點, 收200MB的新生代一定比收集800MB的新生代快呀, 這其實也會間接導致GC發動的頻率變高, 可能原來是10sec收一次, 每次停100ms, 後來變成5sec收一次, 每次停80ms. 這感覺好像也不值得, 因為吞吐量掉下來了.
+
+
+
+
+
+* **-XX:GCTimeRatio**: **直接設定吞吐量大小**, 此參數應是一個大於0且小於100的整數, 也就是**GC時間占總時間的比率, 相當於是吞吐量的倒數**. 譬如說你設定成24, 那允許的最大GC時間就占總時間的:\(1/\(1 + 24\)\) = 4%. 這個參數的預設值是99, 就是允許最大1%的GC時間\(1/\(1 + 99\)\).
+
+因為吞吐量關係密切, 這個collector也被稱為Throughput-First Collector, 而除了上述兩個參數之外, 還有一個很重要的參數:
+
+* **-XX:+UseAdaptiveSizePolicy**: 這個參數是一個開關\(+/-\), 打開後你就不用手工指定新生代的大小\(-Xmn\), Eden與Survivor區的比例\(-XX:SurvivorRatio\), 以及晉升至老年代物件之大小\(-XX:PretenureSizeThreshold\)等參數了,** JVM會根據當前系統的運作情況收集性能監控資訊, 動態調整這些參數以提供最適合的停頓時間或是最大吞吐量, 這種自適應的方式又稱為GC Ergonomics**. 所以如果你很懶或是沒有把握能夠自己tune得很好, 就可以打開這個開關讓JVM去幫你搞定, 這時候你需要設定的東西就只剩下一些比較基本的參數像是"-Xmx"\(最大Java Heap size\), "-XX:MaxGCPauseMillis"或是"-XX:GCTimeRatio", 藉此提供JVM一個最佳化的方向. 單就adaptability這一點來說, 就是跟ParNew之間的一個重要區別了.
 
 ### Serial Old Collector
 
