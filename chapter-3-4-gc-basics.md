@@ -40,9 +40,13 @@ GC在對heap中進行回收之前, 第一件事就是要確定這些物件之中
 * **Dead or Alive**: 即便是在reachability analysis中不可達的物件, 也並非是絕對會死的, 這時候這些物件基本上是處在緩刑的階段, 要真正宣告一個物件的死亡, **至少要經歷過兩次標記過程** --- 若物件在進行reachability analysis後發現沒有跟GC Roots相連, 它會被第一次標記並且進行一次篩選, 這個篩選就是**此物件是否有必要執行finalize\(\) method**. 當物件沒有override finalize\(\), 或是finalize\(\)已經被JVM呼叫過了, 那就是沒必要執行了. 倘若這個物件有必要執行finalize\(\), 那這個物件就會被放到一個叫做**F-Queue**的佇列裡面, 並在稍後由一個由JVM自動建立且優先順序比較低的**Finalizer thread**去執行它. 但這邊的執行僅僅只是說JVM會去觸發這個方法, 但並沒有承諾會等這個方法跑完, 原因很簡單: 若一個物件在finalize\(\)中執行得很慢, 甚至出現了dead lock, 這樣F-Queue裡的其它物件難不成要一直等然後導致GC crash嗎? 而在finalize\(\)中, 物件可以透過重新將自己跟reference chain上的任一物件建立關聯來讓自己逃離被回收的命運, 譬如把this關鍵字assign給某個變數或是物件的instance variable. 那在GC第二次標記時, 這個物件就會被移出"即將回收"的集合; 反之, 就真的被回收了. [這邊](https://github.com/yotsuba1022/java-concurrency/commit/d897defefebade66596de8fb2653731712f9a67f)實作了一個範例, 示範了自救的過程, 但物件第二次自救還是會失敗, 原因是因為任何一個物件的finalize\(\)都只會被系統呼叫一次, 若物件面對下一次回收, finalize\(\)是不會被執行的. 其實這裡只是想示範finalize\(\)只會被呼叫一次, 不是說要學怎麼靠這方法自救, 因為我覺得這並不是finalize\(\)的真正用意, 所以看看就好了.
 
 * **Method Area的回收**: 前面的章節有提到過, 在Method Area做回收的CP值很低, 舉個例子, 通常在Java Heap的新生代中, 一次的GC大概可以收掉7~9成的垃圾, 而Method Area\(或是說HotSpot的永久代\)卻遠低於這個數字. 由於此區的主要回收大概只有兩部分內容 --- 廢棄的constant跟沒用的class. 回收廢棄的constant還算簡單, 但是判定一個class是不是沒用的class就比較麻煩了, 其要同時滿足以下三個條件才可以成立:  
+  
   1. 該class所有的instance都已經被回收, 就是說Java Heap裡面已經不存在該class的任何instance了  
+  
   2. 加載該class的class loader已經被回收了  
+  
   3. 該class對應的java.lang.Class物件沒有於任何地方被參照, 無法在任何地方透過reflection存取該class的方法  
+  
   從這邊大概可以想到一件事, 在大量使用reflection/dynamic proxy/CGLib等byte code的framework\(如Spring\), 或是動態生成JS以及OSGi這類頻繁自定義ClassLoader的情境下都需要JVM具備class unload的功能, 以保證永久代不會overflow \(這在JDK8已經有改善了\).
 
 
