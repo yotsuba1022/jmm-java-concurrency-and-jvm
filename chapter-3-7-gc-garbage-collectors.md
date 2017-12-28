@@ -76,5 +76,20 @@ CMS\(Concurrent Mark Sweep\)是一種**以獲取最短回收停頓時間為主�
 
 ### G1 Collector
 
-padding
+G1\(Garbage-First\)是目前最前沿的collector之一, 其定位是一款server side導向的collector. 與其他collector相比, G1有以下特點:
+
+* 平行與並發
+* 分代收集
+* 空間整合
+* 可預測的停頓
+
+
+
+
+
+
+
+
+
+
 
