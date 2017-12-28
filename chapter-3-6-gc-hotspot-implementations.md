@@ -28,35 +28,9 @@
 
 * **搶先式中斷\(Preemptive Suspension\)**: 不需要執行緒的執行程式主動去配合, 在GC發生時, 首先把所有執行緒全都中斷, 若發現有執行緒中斷的地方不是在Safepoint上, 就恢復該執行緒, 讓其跑到Safepoint上.
 
-* **主動式中斷\(Voluntary Suspension\)**: 當GC需要中斷執行緒的時候, 不直接對執行緒操作, 僅僅是簡單地設置一個flag, 各個執行緒執行時主動去poll\(輪詢\)這個flag, 發現中斷flag為trye的時候就自己中斷並且hang up. 這些pool flag和Safepoint是重合的, 另外再加上建立物件需要分配記憶體的地方.
+* **主動式中斷\(Voluntary Suspension\)**: 當GC需要中斷執行緒的時候, 不直接對執行緒操作, 僅僅是簡單地設置一個flag, 各個執行緒執行時主動去poll\(輪詢\)這個flag, 發現中斷flag為trye的時候就自己中斷並且hang up. 這些pool flag和Safepoint是重合的, 另外再加上建立物件需要分配記憶體的地方. 目前HotSpot採用的就是這種方式.
 
 ### 安全區域
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
