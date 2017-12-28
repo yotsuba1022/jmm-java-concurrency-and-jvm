@@ -39,7 +39,7 @@ ParNew在單CPU的環境中, 基本上不會有比Serial Collector更優秀的�
 這個是Serial Collector的老年代版本, 一樣是單執行緒collector. 其主要意義也是在於給client mode下的JVM使用. 但若是在server mode下, 還有兩個用途:
 
 * 在JDK1.5及之前的版本中與Parallel Scavenge搭配使用
-* 作為CMS Collector的backup solution
+* **作為CMS Collector的backup solution**
 
 關於這兩點, 之後會再慢慢提到.
 
