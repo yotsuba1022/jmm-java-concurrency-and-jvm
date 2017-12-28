@@ -16,7 +16,7 @@ ParNew在單CPU的環境中, 基本上不會有比Serial Collector更優秀的�
 
 ### Parallel Scavenge Collector \(Copying Algorithm\)
 
-這是一個用於新生代的collector, 且還是平行的多執行緒collector, 這感覺上跟ParNew很像, 但是其關注點與別的collector是不同的, Parallel Scavenge Collector最在意的是要可以達到一個可控制的吞吐量\(Throughput\). 這邊的吞吐量指的是說CPU用於執行client code的時間與CPU總消耗時間的比值, 寫成算式就是這樣:
+這是一個用於新生代的collector, 且還是**平行**的**多執行緒**collector, 這感覺上跟ParNew很像, 但是其關注點與別的collector是不同的, Parallel Scavenge Collector最在意的是要可以達到一個可控制的吞吐量\(Throughput\). 這邊的吞吐量指的是說CPU用於執行client code的時間與CPU總消耗時間的比值, 寫成算式就是這樣:
 
 **Throughput = \(Time for running client code\) / \(Time for running client code + Time for GC\)**
 
@@ -43,15 +43,52 @@ ParNew在單CPU的環境中, 基本上不會有比Serial Collector更優秀的�
 
 關於這兩點, 之後會再慢慢提到.
 
-### Parallel Old Collector
+### Parallel Old Collector \(Mark-Compact Algorithm\)
 
-padding
+Parallel Scavenge Collector的老年代版本, 使用**多執行緒**. 此collector是JDK1.6才開始出現的, 在此之前, 新生代的Parallel Scavenge其實一直都很尷尬, 原因是在JDK1.6之前, Parallel Scavenge\(新生代\)只能跟Serial Old\(老年代\)搭配\(因為Parallel Scavenge不能跟CMS搭配\), 這就會出現一個問題: **Serial Old在server端的性能可能會拖累整體GC效能\(因為單執行緒的老年代收集無法充分利用server多CPU的優勢\), 導致Parallel Scavenge未必能在整體上達到吞吐量最大化之效果**. 且這種尷尬的組合可能還會輸給ParNew + CMS.
 
-### CMS Collector
+不過在Parallel Old出現後, 就可以使用吞吐量優先的應用組合了, 在特別要求吞吐量或是CPU資源很敏感的情境中, 就可以優先考慮Parallel Scavenge + Parallel Old.
 
-padding
+### CMS Collector \(Mark-Sweep Algorithm\)
+
+CMS\(Concurrent Mark Sweep\)是一種以獲取最短回收停頓時間為主要關注點的collector. 對於目前很多集中在internet website或是B/S系統的Java application來說, 服務的回應速度是很重要的, 所以也希望停頓時間可以越短越好, 以帶來更好的UX. 這時候CMS就是很好的選擇.
+
+不過, CMS跟前面幾種collector比起來, 其運作方式又更複雜了一點, 基本上分為以下四個步驟
+
+1. 初始標記 \(CMS initial mark, STW required\): 就只是標記一下GC Roots能直接關連到的物件而已, 這步動作還算快.
+2. 並發標記 \(CMS concurrent mark\): 並發地進行GC Roots Tracing, 最慢的大概就是這步了, 但是可以同時跟client code一起運作.
+3. 重新標記 \(CMS remark, STW required\): 這裡是為了修正並發標記期間因為client code繼續運作而導致標記產生變動的那一部分物件的標記紀錄, 此階段會比初始標記稍微久一點, 但遠比並發標記要短.
+4. 並發清除 \(CMS concurrent sweep\): 就是並發的清垃圾, 可以跟client code一起運作.
+
+這邊可以回想一下Serial Collector時候提到: "你媽在打掃, 你就在旁邊待著的情境". 在應用CMS的場合來說, 會變成: 你'媽在打掃的同時, 你還可以在旁邊繼續丟垃圾\(~~你之後會不會被你媽收掉我不知道~~\)". 
+
+到這裡, 我們可以看到CMS的幾個優點: 並發收集, 低停頓, 所以其也被稱為低停頓收集器\(Concurrent Low Pause Collector\). 不過世界上沒有任何東西是完美的, CMS有3個明顯的缺點:
+
+
 
 ### G1 Collector
 
 padding
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
