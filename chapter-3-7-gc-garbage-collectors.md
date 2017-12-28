@@ -68,9 +68,10 @@ CMS\(Concurrent Mark Sweep\)是一種以獲取最短回收停頓時間為主要�
 
 * 無法處理浮動垃圾\(Floating Garbage\): 這會在並發清除的階段出現, 因為並發清除的時候, client code還在繼續運作, 所以自然就有可能會有新的垃圾不斷產生, 就是剛才說的你媽在掃地你還在旁邊繼續丟. 這部分的垃圾是出現在標記過程之後的, 所以CMS無法在當前這次的收集中就清掉它們, 只好等下次GC再收, 這種垃圾就叫做浮動垃圾. 其隱含了一個問題就是可能會出現"Concurrent Mode Failure"而導致另一次Full GC的產生. 由於在GC階段的時候, client還是要繼續運行, 這就表示還需要預留有足夠的記憶體空間給client執行緒使用, 因此CMS不能像其他collector一樣等到老年代幾乎要塞爆了才開始收集, 需要先預留一部分空間提供並發收集時的程式運作使用. 關於這部分, 可以透過調整"-XX:CMSInitiatingOccupancyFraction"參數來調整觸發的百分比, 在JDK1.6中, 其threshold已經提高至92%. 要是CMS運作期間, 預留的記憶體空間無法滿足程式的需求, 就會出現"Concurrent Mode Failure", 這時JVM就會啟動之前提到的備援方案: 臨時啟動Serial Old Collector來重新進行老年代的收垃圾作業, 這樣停頓時間就會變長了. 所以說, "-XX:CMSInitiatingOccupancyFraction"設定的太高的話, 很容易導致大量的"Concurrent Mode Failure", 性能反而會降低.
 
+* 基於Mark-Sweep: 這其實就表示**會有大量空間碎片產生**. 碎片過多就表示分配記憶體給大物件的時候會有麻煩, 譬如說**老年代明明就還有很多空間, 但是都是很零散的, 單一空間不夠大的那種, 這時候就只好來一次Full GC了**. 針對這個問題, CMS提供了以下兩個參數: 
+  * **-XX:+UseCMSCompactAtFullCollection**: 這是一個開關參數\(預設是打開的\), 用在當CMS快要hold不住且要進行Full GC時開啟記憶體碎片的合併整理過程, 要注意的是, 記憶體整理的過程是無法並發的, 空間碎片的問題解決了, 但停頓時間就是得加長.
 
-
-* 基於Mark-Sweep:
+  * **-XX:CMSFullGCsBeforeCompaction**: 這個參數用於設置執行多少次不壓縮的Full GC後, 跟著來一次帶壓縮的\(預設是0, 表示每次發生Full GC都進行碎片整理\).
 
 ### G1 Collector
 
