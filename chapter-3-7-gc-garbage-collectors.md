@@ -28,19 +28,20 @@ ParNew在單CPU的環境中, 基本上不會有比Serial Collector更優秀的�
 
 * **-XX:MaxGCPauseMillis**: **控制最大GC停頓時間**, 此參數允許的值是一個大於0的毫秒數, collector會盡可能地保證記憶體回收所花費的時間不超過設定值. 但你也**不要以為把這個參數設定得很小就可以讓系統的GC速度變快**, 因為**GC停頓時間的縮短基本上都是用犧牲吞吐量以及新生代空間換來的**: 你把新生代調小一點, 收200MB的新生代一定比收集800MB的新生代快呀, 這其實也會間接導致GC發動的頻率變高, 可能原來是10sec收一次, 每次停100ms, 後來變成5sec收一次, 每次停80ms. 這感覺好像也不值得, 因為吞吐量掉下來了.
 
-
-
-
-
 * **-XX:GCTimeRatio**: **直接設定吞吐量大小**, 此參數應是一個大於0且小於100的整數, 也就是**GC時間占總時間的比率, 相當於是吞吐量的倒數**. 譬如說你設定成24, 那允許的最大GC時間就占總時間的:\(1/\(1 + 24\)\) = 4%. 這個參數的預設值是99, 就是允許最大1%的GC時間\(1/\(1 + 99\)\).
 
 因為吞吐量關係密切, 這個collector也被稱為Throughput-First Collector, 而除了上述兩個參數之外, 還有一個很重要的參數:
 
 * **-XX:+UseAdaptiveSizePolicy**: 這個參數是一個開關\(+/-\), 打開後你就不用手工指定新生代的大小\(-Xmn\), Eden與Survivor區的比例\(-XX:SurvivorRatio\), 以及晉升至老年代物件之大小\(-XX:PretenureSizeThreshold\)等參數了,** JVM會根據當前系統的運作情況收集性能監控資訊, 動態調整這些參數以提供最適合的停頓時間或是最大吞吐量, 這種自適應的方式又稱為GC Ergonomics**. 所以如果你很懶或是沒有把握能夠自己tune得很好, 就可以打開這個開關讓JVM去幫你搞定, 這時候你需要設定的東西就只剩下一些比較基本的參數像是"-Xmx"\(最大Java Heap size\), "-XX:MaxGCPauseMillis"或是"-XX:GCTimeRatio", 藉此提供JVM一個最佳化的方向. 單就adaptability這一點來說, 就是跟ParNew之間的一個重要區別了.
 
-### Serial Old Collector
+### Serial Old Collector \(Mark-Compact Algorithm\)
 
-padding
+這個是Serial Collector的老年代版本, 一樣是單執行緒collector. 其主要意義也是在於給client mode下的JVM使用. 但若是在server mode下, 還有兩個用途:
+
+* 在JDK1.5及之前的版本中與Parallel Scavenge搭配使用
+* 作為CMS Collector的backup solution
+
+關於這兩點, 之後會再慢慢提到.
 
 ### Parallel Old Collector
 
