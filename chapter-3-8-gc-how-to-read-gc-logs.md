@@ -22,9 +22,7 @@ GC的log內容會根據你當下選擇的collector而有所差異, 但整體上�
   `0.380: [Full GC (System.gc())`
 
 * GC發生的區域: 這裡顯示的區域名稱跟你用的collector是哪種有很大的關係, 以Serial Collector來說, 其新生代的名稱就是"Default New Generation"/"def new generation", 其在log中的縮寫通常是"DefNew", 以下就是一段Serial Collector的log:  
-  ![](/assets/3-8-1.png)  
-  
-  如果是ParNew, 新生代名稱就會變成"\[ParNew", 意思是"Parallel New Generation"/"par new generation", 範例如下:  
+  ![](/assets/3-8-1.png)如果是ParNew, 新生代名稱就會變成"\[ParNew", 意思是"Parallel New Generation"/"par new generation", 範例如下:  
   ![](/assets/3-8-2.png)  
   若是Parallel Scavenge, 新生代就叫"PSYoungGen", 範例如下:  
   ![](/assets/3-8-3.png)
