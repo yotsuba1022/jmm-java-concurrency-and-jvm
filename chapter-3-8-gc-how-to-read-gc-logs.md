@@ -19,11 +19,15 @@ GC的log內容會根據你當下選擇的collector而有所差異, 但整體上�
 
   這邊也可以看到"\[Full GC", 原因可能是因為出現了promotion failure之類的問題, 所以才會引發STW.  
   如果是透過呼叫"System.gc\(\)"的話, 會顯示"\[Full GC \(System.gc\(\)\)", 像這樣:  
-  `0.380: [Full GC (System.gc()) `
+  `0.380: [Full GC (System.gc())`
 
-* GC發生的區域:
+* GC發生的區域: 這裡顯示的區域名稱跟你用的collector是哪種有很大的關係, 以Serial Collector來說, 其新生代的名稱就是"Default New Generation"/"def new generation", 其在log中的縮寫通常是"DefNew", 以下就是一段Serial Collector的log:  
+  ![](/assets/3-8-1.png)  
+  如果是ParNew, 新生代名稱就會變成"\[ParNew", 意思是"Parallel New Generation".  
+  若是Parallel Scavenge, 新生代就叫"PSYoungGen".
 
 * GC發生前/後的記憶體區域使用量:
+
 * GC發生前/後的Java Heap已使用容量:
 * 記憶體區塊GC所佔用的時間:
 
