@@ -25,7 +25,8 @@ GC的log內容會根據你當下選擇的collector而有所差異, 但整體上�
   ![](/assets/3-8-1.png)如果是ParNew, 新生代名稱就會變成"\[ParNew", 意思是"Parallel New Generation"/"par new generation", 範例如下:  
   ![](/assets/3-8-2.png)  
   若是Parallel Scavenge, 新生代就叫"PSYoungGen", 範例如下:  
-  ![](/assets/3-8-3.png)
+  ![](/assets/3-8-3.png)  
+  以上, 老年代跟永久代/meta space同理, 名稱都可能會隨著collector而異.
 
 * GC發生前/後的記憶體區域使用量:
 
