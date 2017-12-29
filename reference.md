@@ -11,5 +11,8 @@
 3. 深入理解Java虛擬機:JVM高級特性與最佳實踐\(第2版\) ... 周志明  
    書籍連結: [點我](https://www.tenlong.com.tw/products/9787111421900)
 
+4. Minor GC vs Major GC vs Full GC ... Nikita Salnikov-Tarnovski  
+   原文連結: [點我](https://plumbr.io/blog/garbage-collection/minor-gc-vs-major-gc-vs-full-gc)
+
 
 
