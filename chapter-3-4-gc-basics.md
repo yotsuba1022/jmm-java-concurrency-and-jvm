@@ -55,7 +55,14 @@ GC在對heap中進行回收之前, 第一件事就是要確定這些物件之中
 
 #### Minor GC
 
-123
+又稱為輕度GC, 其本質上是要收集新生代\(這裡指Eden與Survivor\)的垃圾. 這個定義基本上是很清楚且被廣泛認可的. 不過有些事情是可以特別提一下的:
+
+* Minor GC基本上都是在JVM沒辦法分配記憶體給新物件的時候被驅動, 譬如說Eden區滿了. 所以記憶體分配率越高, Minor GC發生的頻率就越高.
+* 每當這區滿了, 其所有內容都會被copy到另一個survivor區, 而其Heap指標又會從另一半空閒記憶體的開頭開始繼續移動以分配記憶體. 這基本上跟Mark-Sweep/Mark-Compact就是不一樣的, 故在Eden與Survivor中不會有碎片\(fragmentation\)產生.
+* 在Minor GC發生的時候, 老年代基本上是被忽略的. 從老年代到新生代的參照會被認為是GC Roots, 但從新生代到老年代的參照通常會在標記階段被忽略.
+* 在一般的認知裡, Minor GC會觸發Stop-The-World \(STW\), 停止所有client的執行緒. 其實對大多數的應用程式來說, 這種pause所造成的latency根本都是很微不足道的\(negligible\). 畢竟在絕大多數的場合下, 大部分存在於Eden區的物件都會被當作是回收目標且沒有機會進入Survivor/老年代. 除非大多數新生物件都不符合被GC的條件, Minor GC造成的latency才會成為一個要好好考慮的點.
+
+結論, Minor GC其實很單純 - 就是要把新生代清乾淨\(cleans the Young generation\).
 
 #### Major GC
 
@@ -64,6 +71,4 @@ GC在對heap中進行回收之前, 第一件事就是要確定這些物件之中
 #### Full GC
 
 123
-
-
 
