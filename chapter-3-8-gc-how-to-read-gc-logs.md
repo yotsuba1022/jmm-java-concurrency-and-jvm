@@ -12,21 +12,20 @@ GC的log內容會根據你當下選擇的collector而有所差異, 但整體上�
 
 * GC發生的時間: 即最前面的"**33.125**:"以及"**100.667**:", 這個數字的含意是**從JVM啟動以來所經過的秒數**.
 * GC的停頓類型: 即log開頭的"\[GC"/"\[Full GC", 這並不是用來區分新生代GC或是老年代GC的. 如果有"Full"出現, 表示該次GC有發生Stop-The-World. 再舉一個例子, 以下這段log是新生代的ParNew Collector中出現的log:
+
   ```
   [Full GC 283.736: [ParNew: 261599K->261599K(261599K), 0.0000288 secs] ...
   ```
 
   這邊也可以看到"\[Full GC", 原因可能是因為出現了promotion failure之類的問題, 所以才會引發STW.  
   如果是透過呼叫"System.gc\(\)"的話, 會顯示"\[Full GC \(System.gc\(\)\)", 像這樣:  
-  
-  111
+  `0.380: [Full GC (System.gc()) `
 
 * GC發生的區域:
+
 * GC發生前/後的記憶體區域使用量:
 * GC發生前/後的Java Heap已使用容量:
 * 記憶體區塊GC所佔用的時間:
-
-
 
 
 
