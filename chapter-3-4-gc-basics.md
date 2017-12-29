@@ -49,5 +49,21 @@ GC在對heap中進行回收之前, 第一件事就是要確定這些物件之中
 
   從這邊大概可以想到一件事, 在大量使用reflection/dynamic proxy/CGLib等byte code的framework\(如Spring\), 或是動態生成JS以及OSGi這類頻繁自定義ClassLoader的情境下都需要JVM具備class unload的功能, 以保證永久代不會overflow \(這在JDK8已經有改善了\).
 
+### Minor GC v.s. Major GC v.s. Full GC
+
+這三個詞搞得我很煩, 所以特別記錄一下.
+
+#### Minor GC
+
+123
+
+#### Major GC
+
+123
+
+#### Full GC
+
+123
+
 
 
