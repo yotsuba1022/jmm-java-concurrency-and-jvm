@@ -76,7 +76,7 @@ CMS\(Concurrent Mark Sweep\)是一種**以獲取最短回收停頓時間為主�
 
 ### G1 Collector \(Copying/Mark-Compact\)
 
-G1\(Garbage-First\)是目前最前沿的collector之一, 其定位是一款server side導向的collector. 與其他collector相比, G1有以下特點:
+G1\(Garbage-First\)是目前最前沿的collector之一, 其定位是一款**server side導向的collector**. 與其他collector相比, G1有以下特點:
 
 * **平行與並發**: G1可以充分利用多CPU/多核心環境下的硬體優勢來縮短STW所需的停頓時間, 部分其它collector原本需要停頓Java執行緒執行的GC動作, G1仍然可以通過並發的方式讓Java程式繼續運作.
 
@@ -86,26 +86,23 @@ G1\(Garbage-First\)是目前最前沿的collector之一, 其定位是一款serve
 
 * **可預測的停頓**: 這是G1相對於CMS的另一項優勢, 降低停頓時間是G1與CMS的共同關注點, 但G1除了追求低停頓時間之外, 還能建立**可預測的停頓時間模型**, 可讓使用者明確指定**在一個長度為M毫秒的時間片段裡, 消耗在GC上的時間不得超過N毫秒**, 這點其實已經是RTSJ GC的特徵了.
 
-從前面介紹的各種collector, 不難發現這些collector收集的範圍都限定於整個新生代或著是老年代, 但G1就不是這樣了. G1在看待Java Heap記憶體佈局的時候與其它collector有很大的差別, 其將整個Java Heap畫分為多個大小相等的獨立區域\(Region\), 儘管還是保留著新生代與老年代的概念, 但新生代與老年代已不再是物理上被隔離開的了, 它們都會是Region\(不需要連續\)的集合.
+從前面介紹的各種collector, 不難發現這些collector收集的範圍都限定於整個新生代或著是老年代, 但G1就不是這樣了. G1在看待Java Heap記憶體佈局的時候與其它collector有很大的差別, 其**將整個Java Heap畫分為多個大小相等的獨立區域\(Region\)**, **儘管還是保留著新生代與老年代的概念, 但新生代與老年代已不再是物理上被隔離開的了, 它們都會是Region\(不需要連續\)的集合**.
 
-G1之所以可以建立可預測的停頓時間模型, 是因為其可以有計劃地避免在整個Java Heap中進行全區域的GC. G1會追蹤各個Region裡面的垃圾堆積的價值大小\(回收所獲得的空間大小以及回收所需時間的經驗值\), 並以此在後台維護一個優先列表, 每次都會根據允許的收集時間, 優先回收CP值最高的Region\(這就是Garbage-First名稱的由來\). 這種用Region畫分記憶體空間以及有優先級的區域回收方式, 保證了G1在有限時間內可以獲取盡可能高的收集率.
+G1之所以可以建立可預測的停頓時間模型, 是因為其可以**有計劃地避免在整個Java Heap中進行全區域的GC**. G1會追蹤各個Region裡面的垃圾堆積的價值大小\(**回收所獲得的空間大小以及回收所需時間的經驗值**\), **並以此在後台維護一個優先列表, 每次都會根據允許的收集時間, 優先回收CP值最高的Region\(這就是Garbage-First名稱的由來\)**. 這種用Region畫分記憶體空間以及有優先級的區域回收方式, 保證了G1在有限時間內可以獲取盡可能高的收集率.
 
-到這裡, 我們可以看出來G1的思路是想要把記憶體"化整為零", 這理解起來很容易, 但G1從開始發想到開發出商用版本, 也是花了整整10年的時間的\(從Sun發表第一篇相關論文開始算\). 這其中其實有很多很多非常困難的問題要解決, 舉個例子: 把Java Heap分為多個Region後, GC真的就能以Region為單位進行收集了嗎? 其實不然, 因為Region不可能是孤立的. 一個物件被分配在某個Region中, 其並非只能被同一Region中的其它物件參照, 而是可以與整個Java Heap中的任一物件發生參照關係. 按照這個想法, 在做reachability analysis的時候豈不是就要掃整個Java Heap才能確定有哪些物件是否存活了嗎? 這個問題其實不是只有在G1才有, 只是說, 這個問題在G1中更為突出而已. 在之前談過的分代收集裡, 新生代的規模通常來說都會比老年代要小得多, 且新生代的回收次數也比老年代要來得頻繁, 那回收新生代物件時也會面臨相同的問題, 若回收新生代時也不得不同時掃描老年代的話, 那麼Minor GC的效率可能會下降很多.
+到這裡, 我們可以看出來G1的思路是想要把記憶體"**化整為零**", 這理解起來很容易, 但G1從開始發想到開發出商用版本, 也是花了整整10年的時間的\(從Sun於2004年發表第一篇相關論文開始算, 沒找錯的話, 應該是[這篇](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.63.6386&rep=rep1&type=pdf)\). 這其中其實有很多很多非常困難的問題要解決, 舉個例子: **把Java Heap分為多個Region後, GC真的就能以Region為單位進行收集了嗎?** 其實不然, 因為**Region不可能是孤立的**. **一個物件被分配在某個Region中, 其並非只能被同一Region中的其它物件參照, 而是可以與整個Java Heap中的任一物件發生參照關係**. 按照這個想法, 在做reachability analysis的時候豈不是就要掃整個Java Heap才能確定有哪些物件是否存活了嗎? 這個問題其實不是只有在G1才有, 只是說, 這個問題在G1中更為突出而已. 在之前談過的分代收集裡, 新生代的規模通常來說都會比老年代要小得多, 且新生代的回收次數也比老年代要來得頻繁, 那回收新生代物件時也會面臨相同的問題, **若回收新生代時也不得不同時掃描老年代的話, 那麼Minor GC的效率可能會下降很多**.
 
-在G1裡, Region之間的物件參照以及其它collector中的新生代與老年代之間的物件參照, 在JVM中都是使用一個叫做Remembered Set的東西來避免對整個Heap做掃描的. G1中的每個Region裡都會有一個與之對應的Rememvered Set, JVM發現程式在對Reference Type的資料進行寫入操作時, 會先產生一個Write Barrier暫時中斷這個寫入操作, 檢查Reference 參照的物件是否處於不同的Region之中\(這個在分代的一個例子就是: 檢查老年代中的物件是否參照了新生代的物件\), 若是, 則通過一個叫做CardTable的東西把相關參照訊息記錄到被參照物件所屬的Region的Remembered Set中\(這邊的例子就是在新生代那邊的Region中的Rememvered Set中記下來\). 當進行記憶體回收時, 在窮舉GC Roots的範圍中加入Remembered Set就可以保證不對全Heap進行掃描也不會有遺漏了\(繼續套用前面的例子, 就是說**新生代的GC Roots + Remembered Set儲存的內容 = 新生代收集時真正的GC Roots**\). 基本上講到這裡, 我們可以知道Remembered Set基本上跟前面提到過的OopMap一樣, 都是拿空間換時間的解決方案.
+在G1裡, Region之間的物件參照以及其它collector中的新生代與老年代之間的物件參照, 在JVM中都是使用一個叫做**Remembered Set**的東西來避免對整個Heap做掃描的.** G1中的每個Region裡都會有一個與之對應的Rememvered Set, JVM發現程式在對Reference Type的資料進行寫入操作時, 會先產生一個Write Barrier暫時中斷這個寫入操作, 檢查Reference參照的物件是否處於不同的Region之中\(這個在分代的一個例子就是: 檢查老年代中的物件是否參照了新生代的物件\), 若是, 則通過一個叫做CardTable的東西把相關參照訊息記錄到被參照物件所屬的Region的Remembered Set中\(這邊的例子就是在新生代那邊的Region中的Rememvered Set中記下來\). 當進行記憶體回收時, 在窮舉GC Roots的範圍中加入Remembered Set就可以保證不對全Heap進行掃描也不會有遺漏了**\(繼續套用前面的例子, 就是說**新生代的GC Roots + Remembered Set儲存的內容 = 新生代收集時真正的GC Roots**\). 基本上講到這裡, 我們可以知道Remembered Set基本上跟前面提到過的OopMap一樣, 都是**拿空間換時間**的解決方案.
 
 以上是對G1初步的介紹, 再來要談的是G1的運作步驟, 如果不看維護Remembered Set的操作的話, 大概可以分成以下四個步驟:
 
-1. 初始標記 \(Initial Marking, STW required\): 標記一下GC Roots能直接關連到的物件, 並且修改TAMS\(Next Top at Mark Start\)的值, 讓下一階段的client code並發執行時, 可以在正確可用的Region中建立新物件, 這個階段一樣要STW, 但時間很短.
-2. 並發標記 \(Concurrent Marking\): 從GC Roots開始對Java Heap中的物件進行reachability analysis, 找出還活著的物件, 比較耗時, 但是可以跟client code並發執行.
-3. 最終標記 \(Final Marking, STW required\): 為了修正在並發標記期間你媽在打掃然後你又亂丟垃圾的關係, 導致標記產生變化的那一部分標記紀錄, JVM會把這段時間物件的變化記錄在執行緒的Remembered Set Logs裡面, 然後還要把Remembered Set Logs的資料合併到Remembered Set裡面, 這裡雖然需要STW, 但是可以平行\(parallel\)執行.
-4. 篩選回收 \(Live Data Counting and Evacuation, STW optional\): 此階段首先對各個Region的回收價值跟成本進行排序, 根據使用者所期望的GC停頓時間來制定回收計劃, 通常這階段都會STW\(因為這樣可以大幅提高收集效率\).
+1. **初始標記 \(Initial Marking, STW required\)**: 標記一下GC Roots能直接關連到的物件, 並且修改TAMS\(Next Top at Mark Start\)的值, 讓下一階段的client code並發執行時, 可以在正確可用的Region中建立新物件, 這個階段一樣要STW, 但時間很短.
 
+2. **並發標記 \(Concurrent Marking\)**: 從GC Roots開始對Java Heap中的物件進行reachability analysis, 找出還活著的物件, 比較耗時, 但是可以跟client code並發執行.
 
+3. **最終標記 \(Final Marking, STW required\)**: 為了修正在並發標記期間**你媽在打掃然後你又亂丟垃圾的關係**, 導致標記產生變化的那一部分標記紀錄, JVM會把這段時間物件的變化記錄在執行緒的Remembered Set Logs裡面, 然後還要把Remembered Set Logs的資料合併到Remembered Set裡面, 這裡雖然需要STW, 但是可以平行\(parallel\)執行.
 
-
-
-
+4. **篩選回收 \(Live Data Counting and Evacuation, STW optional\)**: 此階段首先對各個Region的回收價值跟成本進行排序, 根據使用者所期望的GC停頓時間來制定回收計劃, 通常這階段都會STW\(因為這樣可以大幅提高收集效率\).
 
 
 
