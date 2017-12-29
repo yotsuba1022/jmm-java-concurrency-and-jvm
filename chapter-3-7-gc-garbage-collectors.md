@@ -64,7 +64,7 @@ CMS\(Concurrent Mark Sweep\)是一種**以獲取最短回收停頓時間為主�
 
 1. **初始標記 \(CMS initial mark, STW required\)**: 就只是標記一下GC Roots能直接關連到的物件而已, 這步動作還算快.
 2. **並發標記 \(CMS concurrent mark\)**: 並發地進行GC Roots Tracing, 最慢的大概就是這步了, 但是可以同時跟client code一起運作.
-3. **重新標記 \(CMS remark, STW required\)**: 這裡是為了修正並發標記期間因為client code繼續運作而導致標記產生變動的那一部分物件的標記紀錄, 此階段會比初始標記稍微久一點, 但遠比並發標記要短.
+3. **重新標記 \(CMS final remark, STW required\)**: 這裡是為了修正並發標記期間因為client code繼續運作而導致標記產生變動的那一部分物件的標記紀錄, 此階段會比初始標記稍微久一點, 但遠比並發標記要短.
 4. **並發清除 \(CMS concurrent sweep\)**: 就是並發的清垃圾, 可以跟client code一起運作.
 
 這邊可以回想一下Serial Collector時候提到: "你媽在打掃, 你就在旁邊待著的情境". 在應用CMS的場合來說, 會變成: "**你媽在打掃的同時, 你還可以在旁邊繼續丟垃圾\(**~~**你之後會不會被你媽收掉我不知道**~~**\)**".
