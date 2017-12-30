@@ -65,7 +65,7 @@ GC在對heap中進行回收之前, 第一件事就是要確定這些物件之中
 
 * 在Minor GC發生的時候, 老年代基本上是被忽略的. 從老年代到新生代的參照會被認為是GC Roots, 但從新生代到老年代的參照通常會在標記階段被忽略.
 
-* 在一般的認知裡, Minor GC會觸發Stop-The-World \(STW\), 停止所有client的執行緒. 其實對大多數的應用程式來說, 這種pause所造成的latency根本都是很微不足道的\(negligible\). 畢竟在絕大多數的場合下, 大部分存在於Eden區的物件都會被當作是回收目標且沒有機會進入Survivor/老年代. 除非大多數新生物件都不符合被GC的條件, Minor GC造成的latency才會成為一個要好好考慮的點.
+* 在一般的認知裡, Minor GC會觸發Stop-The-World \(STW\), 停止所有application thread. 其實對大多數的應用程式來說, 這種pause所造成的latency根本都是很微不足道的\(negligible\). 畢竟在絕大多數的場合下, 大部分存在於Eden區的物件都會被當作是回收目標且沒有機會進入Survivor/老年代. 除非大多數新生物件都不符合被GC的條件, Minor GC造成的latency才會成為一個要好好考慮的點.
 
 結論, Minor GC其實很單純 - 就是要把新生代清乾淨\(cleans the Young generation\).
 
@@ -79,5 +79,5 @@ GC在對heap中進行回收之前, 第一件事就是要確定這些物件之中
 
 對於上面兩個詞\(Major GC/Full GC\), 不管是在JVM Spec還是GC相關的研究論文裡, 其實都沒有一個正式/官方的明確定義. 講到這其實會覺得有點複雜跟困惑. **畢竟在很多情況下, Major GC都是被Minor GC驅動的, 所以要分開這兩者幾乎不太可能**. 另一方面, 對很多現代的垃圾收集器來說, 它們也只是部分地清理了老年代, 所以用清理這個詞也只能說是部分正確.
 
-所以我覺得與其在那邊擔心這到底叫Major GC還是Full GC, 你乾脆去關注當前的GC有沒有觸發STW或是GC是否有並發地\(concurrently\)跟client code一起運作會比較重要. 畢竟不管是Minor/Major/Full GC, 監控應用程式的latency或是吞吐量並且將其關聯至GC事件並且解讀背後發生的事情才是我們真正想要的結果.
+所以我覺得與其在那邊擔心這到底叫Major GC還是Full GC, 你乾脆去關注當前的GC有沒有觸發STW或是GC是否有並發地\(concurrently\)跟application thread一起運作會比較重要. 畢竟不管是Minor/Major/Full GC, 監控應用程式的latency或是吞吐量並且將其關聯至GC事件並且解讀背後發生的事情才是我們真正想要的結果.
 
