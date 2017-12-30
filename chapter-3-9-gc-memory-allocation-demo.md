@@ -213,7 +213,82 @@ Heap
 
 ### 動態物件年齡判定
 
-123
+這個範例可以算是對前面一個範例出現的問題所產生的一個解釋, [範例程式](https://github.com/yotsuba1022/java-concurrency/commit/9151ee276286009d26591578a3a7a903d3966b53)如下:
+
+```java
+package idv.java.jvm.gc.memoryallocate.tenuringthreshold;
+
+/**
+ * @author Carl Lu
+ */
+public class TenuringThresholdDemo2 {
+    private static final int _1MB = 1024 * 1024;
+
+    public static void main(String[] args) {
+        byte[] allocation1, allocation2, allocation3, allocation4;
+
+        allocation1 = new byte[_1MB / 4];
+        allocation2 = new byte[_1MB / 4];
+        allocation3 = new byte[4 * _1MB];
+        allocation4 = new byte[4 * _1MB];
+        allocation4 = null;
+        allocation4 = new byte[4 * _1MB];
+    }
+}
+```
+
+GC log如下:
+
+有發生promotion的情況:
+
+```
+Java HotSpot(TM) 64-Bit Server VM (25.152-b16) for bsd-amd64 JRE (1.8.0_152-b16), built on Sep 14 2017 02:31:13 by "java_re" with gcc 4.2.1 (Based on Apple Inc. build 5658) (LLVM build 2336.11.00)
+Memory: 4k page, physical 8388608k(206472k free)
+
+/proc/meminfo:
+
+CommandLine flags: -XX:InitialHeapSize=20971520 -XX:MaxHeapSize=20971520 -XX:MaxNewSize=10485760 -XX:MaxTenuringThreshold=15 -XX:NewSize=10485760 -XX:+PrintGC -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintTenuringDistribution -XX:SurvivorRatio=8 -XX:-UseCompressedClassPointers -XX:-UseCompressedOops -XX:+UseSerialGC 
+0.281: [GC (Allocation Failure) 0.281: [DefNew
+Desired survivor size 524288 bytes, new threshold 1 (max 15)
+- age   1:    1048576 bytes,    1048576 total
+: 7158K->1024K(9216K), 0.0073013 secs] 7158K->5326K(19456K), 0.0074506 secs] [Times: user=0.01 sys=0.01, real=0.00 secs] 
+0.290: [GC (Allocation Failure) 0.290: [DefNew
+Desired survivor size 524288 bytes, new threshold 15 (max 15)
+: 5120K->0K(9216K), 0.0034517 secs] 9422K->5326K(19456K), 0.0035425 secs] [Times: user=0.00 sys=0.00, real=0.01 secs] 
+Heap
+ def new generation   total 9216K, used 4178K [0x0000000110800000, 0x0000000111200000, 0x0000000111200000)
+  eden space 8192K,  51% used [0x0000000110800000, 0x0000000110c14970, 0x0000000111000000)
+  from space 1024K,   0% used [0x0000000111000000, 0x0000000111000000, 0x0000000111100000)
+  to   space 1024K,   0% used [0x0000000111100000, 0x0000000111100000, 0x0000000111200000)
+ tenured generation   total 10240K, used 5326K [0x0000000111200000, 0x0000000111c00000, 0x0000000111c00000)
+   the space 10240K,  52% used [0x0000000111200000, 0x00000001117339c8, 0x0000000111733a00, 0x0000000111c00000)
+ Metaspace       used 3303K, capacity 4112K, committed 4352K, reserved 8192K
+```
+
+沒發生promotion的情況\(把程式的13跟14行註解掉就可以看到這個結果了\):
+
+```
+Java HotSpot(TM) 64-Bit Server VM (25.152-b16) for bsd-amd64 JRE (1.8.0_152-b16), built on Sep 14 2017 02:31:13 by "java_re" with gcc 4.2.1 (Based on Apple Inc. build 5658) (LLVM build 2336.11.00)
+Memory: 4k page, physical 8388608k(232432k free)
+
+/proc/meminfo:
+
+CommandLine flags: -XX:InitialHeapSize=20971520 -XX:MaxHeapSize=20971520 -XX:MaxNewSize=10485760 -XX:MaxTenuringThreshold=15 -XX:NewSize=10485760 -XX:+PrintGC -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintTenuringDistribution -XX:SurvivorRatio=8 -XX:-UseCompressedClassPointers -XX:-UseCompressedOops -XX:+UseSerialGC 
+0.305: [GC (Allocation Failure) 0.305: [DefNew
+Desired survivor size 524288 bytes, new threshold 1 (max 15)
+- age   1:     976104 bytes,     976104 total
+: 6902K->953K(9216K), 0.0034486 secs] 6902K->953K(19456K), 0.0036413 secs] [Times: user=0.01 sys=0.00, real=0.00 secs] 
+Heap
+ def new generation   total 9216K, used 5215K [0x000000011b400000, 0x000000011be00000, 0x000000011be00000)
+  eden space 8192K,  52% used [0x000000011b400000, 0x000000011b8299b0, 0x000000011bc00000)
+  from space 1024K,  93% used [0x000000011bd00000, 0x000000011bdee4e8, 0x000000011be00000)
+  to   space 1024K,   0% used [0x000000011bc00000, 0x000000011bc00000, 0x000000011bd00000)
+ tenured generation   total 10240K, used 0K [0x000000011be00000, 0x000000011c800000, 0x000000011c800000)
+   the space 10240K,   0% used [0x000000011be00000, 0x000000011be00000, 0x000000011be00200, 0x000000011c800000)
+ Metaspace       used 3298K, capacity 4112K, committed 4352K, reserved 8192K
+```
+
+關於動態物件年齡的判定: JVM並不是永遠地要求物件的年齡必須達到MaxTenuringThreshold才可以升級到tenured generation, 若在survivor空間中, **相同年齡的所有物件大小之總和大於survivor空間的一半**\(在上面的範例, 就是1MB/2 = 512KB\), 年齡大於或等於該年齡的物件就可以直接進入tenured generation, 不需要等到MaxTenuringThreshold所要求的年齡.
 
 ### 空間分配擔保
 
