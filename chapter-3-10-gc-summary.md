@@ -10,7 +10,9 @@
 
 ### When \(什麼時候要回收?\)
 
-關於回收的時間點, 我們可以這樣分析: GC有哪幾種, 以及這幾種什麼時候會出現回收的動作:
+關於回收的時間點, 我們可以這樣分析: GC有哪幾種, 以及這幾種會在什麼地方的什麼時候出現回收的動作:
+
+首先, 在談GC的時候, Java Heap可以分成新生代\(Young Generation\)以及老年代\(Tenured Generation\), 這兩個地方發生的GC是不同的.
 
 * Minor GC: 當新建立的物件在新生代沒辦法被分配到記憶體空間時\(這裡通常指Eden區\), 就會觸發Minor GC.
 * Major GC: 這通常是被Minor GC間接觸發的, 目的是要回收老年代的物件, 但也有特例是可以只觸發Major GC的\(如Parallel Scavenge Collector\).
