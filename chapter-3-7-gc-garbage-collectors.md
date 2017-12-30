@@ -17,7 +17,7 @@
 
 ### ParNew Collector \(Copying Algorithm\)
 
-ParNew基本上就是**Serial Collector的多執行緒版本**, 除了使用多條執行緒進行收集之外, 其餘行為包含Serial Collector可用的所有控制參數\(-XX:SurvivorRatio, -XX:PretenureSizeThreshold, -XX:HandlePromotionFailure等\), 收集演算法, STW, 物件分配規則, 回收策略等都與Serial Collector完全一樣. 這聽起來好像沒有什麼特別之處, 但ParNew卻是許多運作在server mode下的JVM中首選的新生代collector, 另外還有一個與性能無關但很重要的一點: **除了Serial Collector之外, ParNew是唯一一個能與CMS合作的新生代collector**. 通常當你在VM options中指定了"**-XX:+UseConcMarkSweepGC**"後, 預設的新生代collector就會變成ParNew, 當然也可以使用"**-XX:+UseParNewGC**"來指定.
+ParNew基本上就是**Serial Collector的多執行緒版本**, 除了使用多條執行緒進行收集之外, 其餘行為包含Serial Collector可用的所有控制參數\(-XX:SurvivorRatio, -XX:PretenureSizeThreshold, -XX:+/-HandlePromotionFailure等\), 收集演算法, STW, 物件分配規則, 回收策略等都與Serial Collector完全一樣. 這聽起來好像沒有什麼特別之處, 但ParNew卻是許多運作在server mode下的JVM中首選的新生代collector, 另外還有一個與性能無關但很重要的一點: **除了Serial Collector之外, ParNew是唯一一個能與CMS合作的新生代collector**. 通常當你在VM options中指定了"**-XX:+UseConcMarkSweepGC**"後, 預設的新生代collector就會變成ParNew, 當然也可以使用"**-XX:+UseParNewGC**"來指定.
 
 ParNew在單CPU的環境中, 基本上不會有比Serial Collector更優秀的表現, 甚至由於存在執行緒互動的開銷, 儘管在Hyper-Threading的CPU環境下也不能保證能夠超越Serial Collector. 當然, 隨著可用CPU的數量之遞增, 其對於GC時系統資源的有效利用還是有好處的. 其默認啟動的收集執行緒數量與CPU的數量相等, 若你的CPU很多, 可以用"**-XX:ParallelGCThreads**"來限制用於GC的執行緒數量.
 
