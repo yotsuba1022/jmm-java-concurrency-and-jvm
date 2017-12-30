@@ -292,5 +292,103 @@ Heap
 
 ### 空間分配擔保
 
-123
+這邊要講的東西比較複雜, 先貼[範例程式](https://github.com/yotsuba1022/java-concurrency/commit/f3b9db23c8b904b520bcefebaf4ede37b8eb67de):
+
+```java
+package idv.java.jvm.gc.memoryallocate.forcepromotion;
+
+/**
+ * @author Carl Lu
+ * VM args: -Xloggc:gclog-ForcePromotionDemo.log -Xms20M -Xmx20M -Xmn10M -XX:+PrintGCDetails -XX:SurvivorRatio=8 -XX:+PrintTenuringDistribution -XX:-UseCompressedClassPointers -XX:-UseCompressedOops -XX:+UseSerialGC
+ */
+public class ForcePromotionDemo {
+    private static final int _1MB = 1024 * 1024;
+
+    public static void main(String[] args) {
+        byte[] allocation1, allocation2, allocation3, allocation4, allocation5, allocation6, allocation7;
+        allocation1 = new byte[2 * _1MB];
+        allocation2 = new byte[2 * _1MB];
+        allocation3 = new byte[2 * _1MB];
+        allocation1 = null;
+        allocation4 = new byte[2 * _1MB];
+        allocation5 = new byte[2 * _1MB];
+        allocation6 = new byte[2 * _1MB];
+        allocation4 = null;
+        allocation5 = null;
+        allocation6 = null;
+        allocation7 = new byte[2 * _1MB];
+    }
+}
+```
+
+GC log如下:
+
+把-XX:+PrintTenuringDistribution打開的log:
+
+```
+Java HotSpot(TM) 64-Bit Server VM (25.152-b16) for bsd-amd64 JRE (1.8.0_152-b16), built on Sep 14 2017 02:31:13 by "java_re" with gcc 4.2.1 (Based on Apple Inc. build 5658) (LLVM build 2336.11.00)
+Memory: 4k page, physical 8388608k(223884k free)
+
+/proc/meminfo:
+
+CommandLine flags: -XX:InitialHeapSize=20971520 -XX:MaxHeapSize=20971520 -XX:MaxNewSize=10485760 -XX:NewSize=10485760 -XX:+PrintGC -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintTenuringDistribution -XX:SurvivorRatio=8 -XX:-UseCompressedClassPointers -XX:-UseCompressedOops -XX:+UseSerialGC 
+0.249: [GC (Allocation Failure) 0.249: [DefNew
+Desired survivor size 524288 bytes, new threshold 1 (max 15)
+- age   1:     709448 bytes,     709448 total
+: 6646K->692K(9216K), 0.0066271 secs] 6646K->4788K(19456K), 0.0068361 secs] [Times: user=0.00 sys=0.00, real=0.01 secs] 
+0.257: [GC (Allocation Failure) 0.258: [DefNew (promotion failed) : 7076K->6383K(9216K), 0.0059956 secs]0.264: [Tenured: 8855K->8854K(10240K), 0.0055091 secs] 11172K->8854K(19456K), [Metaspace: 3279K->3279K(8192K)], 0.0116887 secs] [Times: user=0.01 sys=0.01, real=0.01 secs] 
+Heap
+ def new generation   total 9216K, used 4480K [0x0000000111e00000, 0x0000000112800000, 0x0000000112800000)
+  eden space 8192K,  54% used [0x0000000111e00000, 0x00000001122600f8, 0x0000000112600000)
+  from space 1024K,   0% used [0x0000000112600000, 0x0000000112600000, 0x0000000112700000)
+  to   space 1024K,   0% used [0x0000000112700000, 0x0000000112700000, 0x0000000112800000)
+ tenured generation   total 10240K, used 8854K [0x0000000112800000, 0x0000000113200000, 0x0000000113200000)
+   the space 10240K,  86% used [0x0000000112800000, 0x00000001130a5ae0, 0x00000001130a5c00, 0x0000000113200000)
+ Metaspace       used 3285K, capacity 4112K, committed 4352K, reserved 8192K
+```
+
+把-XX:+PrintTenuringDistribution關掉的log\(我覺得看起來比較乾淨\):
+
+```
+Java HotSpot(TM) 64-Bit Server VM (25.152-b16) for bsd-amd64 JRE (1.8.0_152-b16), built on Sep 14 2017 02:31:13 by "java_re" with gcc 4.2.1 (Based on Apple Inc. build 5658) (LLVM build 2336.11.00)
+Memory: 4k page, physical 8388608k(190140k free)
+
+/proc/meminfo:
+
+CommandLine flags: -XX:InitialHeapSize=20971520 -XX:MaxHeapSize=20971520 -XX:MaxNewSize=10485760 -XX:NewSize=10485760 -XX:+PrintGC -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:SurvivorRatio=8 -XX:-UseCompressedClassPointers -XX:-UseCompressedOops -XX:+UseSerialGC 
+0.279: [GC (Allocation Failure) 0.279: [DefNew: 6482K->718K(9216K), 0.0070587 secs] 6482K->4814K(19456K), 0.0072504 secs] [Times: user=0.01 sys=0.01, real=0.01 secs] 
+0.288: [GC (Allocation Failure) 0.288: [DefNew (promotion failed) : 7019K->6301K(9216K), 0.0057992 secs]0.294: [Tenured: 8881K->8880K(10240K), 0.0057257 secs] 11115K->8880K(19456K), [Metaspace: 3291K->3291K(8192K)], 0.0117102 secs] [Times: user=0.01 sys=0.00, real=0.01 secs] 
+Heap
+ def new generation   total 9216K, used 4563K [0x0000000110a00000, 0x0000000111400000, 0x0000000111400000)
+  eden space 8192K,  55% used [0x0000000110a00000, 0x0000000110e74f70, 0x0000000111200000)
+  from space 1024K,   0% used [0x0000000111200000, 0x0000000111200000, 0x0000000111300000)
+  to   space 1024K,   0% used [0x0000000111300000, 0x0000000111300000, 0x0000000111400000)
+ tenured generation   total 10240K, used 8880K [0x0000000111400000, 0x0000000111e00000, 0x0000000111e00000)
+   the space 10240K,  86% used [0x0000000111400000, 0x0000000111cac000, 0x0000000111cac000, 0x0000000111e00000)
+ Metaspace       used 3297K, capacity 4112K, committed 4352K, reserved 8192K
+```
+
+所謂的空間分配擔保機制是這樣的: **在發生Minor GC之前, JVM會先檢查老年代最大可用的連續記憶體空間是否大於新生代所有物件的總記憶體空間**, 若這個條件成立, 那麼Minor GC就可以確保是安全的. 反之, JVM就會去看**HandlePromotionFailure**的設定值, 看其是否允許擔保失敗\(**Promotion Failure**\). 如果允許, 那麼會繼續檢查老年代最大可用的連續記憶體空間是否大於**歷次晉升至老年代的物件之平均大小**, **若有大於, 就嘗試進行一次Minor GC**, 儘管這個Minor GC可能隱含著風險\(這個風險的定義等等下面會詳細說明\); **若是小於, 或著HandlePromotionFailure設置不準冒這種風險, 那這時就改成進行一次Full GC**.
+
+那風險是什麼? 我們知道新生代用的是copying演算法, 但為了記憶體的利用率, 我們只會使用兩個Survivor區塊的其中一區來作為備份, 所以**如果出現了大量物件在Minor GC後還是活著的情況下, 講極端點, 全員生還\(100%\), 這樣就要老年代來擔保, 把Survivor無法容納的物件都送進老年代去.** 這跟你去銀行貸款很像, 你的擔保人\(老年代\)要幫你擔保, 他本身口袋也要夠深\(記憶體空間要夠\), 然而, **實際會有多少物件會活下來在實際完成GC之前是不知道的, 所以只好取之前每一次回收時, 晉升到老年代的物件之容量平均大小來作為一個評估值, 並拿此評估值來與老年代的剩餘空間作比較, 看是否要發動Full GC來讓老年代釋放出更多空間.**
+
+其實這種取平均值的方式本身就是一種仰賴動態機率的手段, 這背後隱含了一個問題: **如果某次Minor GC存活後的物件暴增了, 且遠遠高於平均值, 那還是會出現Handle Promotion Failure. 如果是這樣, 就只好再失敗後發動Full GC了**. 儘管如此, 通常還是會把HandlePromotionFailure這個開關打開, 畢竟這樣還是有很高的機率可以避免頻繁的出現Full GC.
+
+好, 寫了這麼多, 但我覺得接下來的才是最重要的: 因為上面講的這一串都**只適用於JDK6u24之前**, 在JDK6u24之後, **HandlePromotionFailure這個參數基本上已經不會再被使用了**\(~~不要打我~~\), 雖然據說你在JDK的原始碼中還是看得到它, 但就是沒有被用到. 在新的JDK實作中, 上述的規則已經變更成: **只要老年代的連續記憶體空間大於新生代物件總大小或著歷次晉升的平均大小, 就會發動Minor GC, 反之則進行Full GC.**
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
