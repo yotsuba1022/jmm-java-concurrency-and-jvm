@@ -69,7 +69,7 @@ GC在對heap中進行回收之前, 第一件事就是要確定這些物件之中
 
 #### Major GC
 
-通常指清理老年代\(Tenured Generation\).
+通常指清理老年代\(Tenured Generation\), 出現Major GC, 經常會伴隨著至少一次的Minor GC\(這並不是絕對的, 譬如說Parallel Scavenge的收集策略裡就有直接選擇Major GC的策略選擇過程\). Major GC的速度通常會比Minor GC慢10倍以上.
 
 #### Full GC
 
@@ -77,5 +77,5 @@ GC在對heap中進行回收之前, 第一件事就是要確定這些物件之中
 
 對於上面兩個詞\(Major GC/Full GC\), 不管是在JVM Spec還是GC相關的研究論文裡, 其實都沒有一個正式/官方的明確定義. 講到這其實會覺得有點複雜跟困惑. **畢竟在很多情況下, Major GC都是被Minor GC驅動的, 所以要分開這兩者幾乎不太可能**. 另一方面, 對很多現代的垃圾收集器來說, 它們也只是部分地清理了老年代, 所以用清理這個詞也只能說是部分正確.
 
-所以我覺得與其在那邊擔心這到底叫Major GC還是Full GC, 你乾脆去關注當前的GC有沒有觸發STW或是GC是否有並發地\(concurrently\)跟client code一起運作會比較重要. 畢竟不管是Minor/Major/Full GC, 監控應用程式的latency或是吞吐量並且將其關聯至GC事件並且解讀背後發生的事情才是我們真正想要的結果. 
+所以我覺得與其在那邊擔心這到底叫Major GC還是Full GC, 你乾脆去關注當前的GC有沒有觸發STW或是GC是否有並發地\(concurrently\)跟client code一起運作會比較重要. 畢竟不管是Minor/Major/Full GC, 監控應用程式的latency或是吞吐量並且將其關聯至GC事件並且解讀背後發生的事情才是我們真正想要的結果.
 
