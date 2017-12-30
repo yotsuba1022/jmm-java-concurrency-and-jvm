@@ -42,7 +42,9 @@
   * ##### **用於新生代的collector**
 
     * **Serial Collector**: 採用Copying演算法, 只使用單一CPU/執行緒去收垃圾, STW required. 簡單而高效\(僅限於單執行緒context下的比較\). 適合運作在client mode下的JVM.
+
     * **ParNew Collector**: 採用Copying演算法, Serial的多執行緒版本, STW required. 也是除了Serial之外唯一能跟CMS搭配的collector. 在單CPU的環境下效能可能不是Serial的對手.
+
     * **Parallel Scavenge Collector**: 採用Copying演算法, 且是平行的多執行緒collector. 其關注點是達到一個可控制的吞吐量\(Throughput\), 以便高效地運用CPU. 另外也具有自適應機制\(GC Ergonomics\)來協助使用者達到獲取最佳吞吐量的vm option可供使用\(-XX:+UserAdaptiveSizePolicy\).
   * ##### **用於老年代的collector**
 
@@ -52,22 +54,6 @@
   * ##### **老少通吃的collector**
 
     * **Garbage First Collector \(G1\)**:
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
