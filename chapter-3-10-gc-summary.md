@@ -10,13 +10,15 @@
 
 ### When \(什麼時候要回收?\)
 
-關於回收的時間點, 我們可以這樣分析: GC有哪幾種, 以及這幾種會在什麼地方的什麼時候出現回收的動作:
+關於回收的時間點, 我們可以這樣分析: **GC有哪幾種, 以及這幾種分別會在什麼區塊的什麼時候出現回收的動作?**
 
-首先, 在談GC的時候, Java Heap可以分成新生代\(Young Generation\)以及老年代\(Tenured Generation\), 這兩個地方發生的GC是不同的.
+回想一下, 在談GC的時候, Java Heap可以分成**新生代\(Young Generation\)**以及**老年代\(Tenured Generation\)**, 這兩個地方發生的GC是不同的:
 
-* Minor GC: 在大部分的情況下, 當新建立的物件在新生代沒辦法被分配到記憶體空間時\(這裡通常指Eden區\), 就會觸發Minor GC. 而在發生Minor GC之前, JVM會先檢查老年代最大可用的連續記憶體空間是否大於新生代所有物件的總記憶體空間, 若這個條件成立, 那麼Minor GC就是安全的, 即可以放心的執行Minor GC, 反之, 則根據HandlePromotionFailure參數決定要則發動MinorGC或是Full GC. 不過在最新的JDK中, HandlePromotionFailure已經沒用了, 所以規則就變成: **只要老年代的連續記憶體空間大於新生代物件總大小或著歷次晉升物件的平均大小, 就會發動Minor GC, 反之則進行Full GC.**
-* Major GC: 這通常是被Minor GC間接觸發的, 目的是要回收老年代的物件, 但也有特例是可以只觸發Major GC的\(如Parallel Scavenge Collector\).
-* Full GC: 晉升到老年代的物件之大小若超過了老年代的剩餘記憶體空間, 就會觸發Full GC. 若你用的JDK\(JDK6u24以前\)有支援HandlePromotionFailure參數, 那也有可能因為你打開了這個參數\(**-XX:+HandlePromotionFailure**\), 而出現明明老年代空間還夠, 但還是來一發Full GC的情況\(這年頭很多公司的起手式都是Java8了, 所以...\).
+* **Minor GC**: 在大部分的情況下, 當新建立的物件在新生代沒辦法被分配到記憶體空間時\(這裡通常指Eden區\), 就會觸發Minor GC. 而在發生Minor GC之前, JVM會先檢查老年代最大可用的連續記憶體空間是否大於新生代所有物件的總記憶體空間, 若這個條件成立, 那麼Minor GC就是安全的, 即可以放心的執行Minor GC; 反之, 則根據HandlePromotionFailure參數決定要發動MinorGC或是Full GC. 不過在最新的JDK中, HandlePromotionFailure已經沒用了, 所以規則就變成: **只要老年代的連續記憶體空間大於新生代物件總大小或著歷次晉升物件的平均大小, 就會發動Minor GC, 反之則進行Full GC.**
+
+* **Major GC**: 這通常是被Minor GC間接觸發的, 目的是要回收老年代的物件, 但也有特例是可以只觸發Major GC的\(如Parallel Scavenge Collector\).
+
+* **Full GC**: 晉升到老年代的物件之大小若超過了老年代的剩餘記憶體空間, 就會觸發Full GC. 若你用的JDK\(JDK6u24以前\)有支援HandlePromotionFailure參數, 那也有可能因為你打開了這個參數\(**-XX:+HandlePromotionFailure**\), 而出現明明老年代空間還夠, 但還是來一發Full GC的情況\(這年頭很多公司的起手式都是Java8了, 所以...\).
 
 不過具體要在什麼時刻執行, 還是由系統來決定, 這基本上是無法預測的.
 
@@ -54,28 +56,6 @@
   * ##### **老少通吃的collector**
 
     * **Garbage First Collector \(G1\)**: 採用Mark-Compact演算法, 可平行也可並發, 採用分代收集且不必跟其它collector配合\(老少通吃\)而且還能夠建立可預測的停頓時間模型. 其對記憶體空間的佈局概念也很特別: 把整個Java Heap區分為多個大小相等的Region來進行處理, 而各Region中卻還是保有新生代/老年代的概念. 回收時, 從回收CP值最高的Region開始回收以獲取盡可能高的收集效率. 其化整為零的概念會碰到不同Region間的新生代與老年代物件之間存有相依性的問題, 故這部分是透過Remembered Set來解決的\(其它collector其實也有用到這個東西\). 其作業模式主要分四步: 初始標記\(STW required\)/並發標記\(Concurrent\)/最終標記\(STW required\)/篩選回收. 缺點可參照前面提到的Mark-Compact演算法的部分, 但我自己在公司用這個覺得還滿耐操的就是了.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
