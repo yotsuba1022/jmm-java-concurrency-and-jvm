@@ -13,8 +13,8 @@
 關於回收的時間點, 我們可以這樣分析: GC有哪幾種, 以及這幾種什麼時候會出現回收的動作:
 
 * Minor GC: 當新建立的物件在新生代沒辦法被分配到記憶體空間時\(這裡通常指Eden區\), 就會觸發Minor GC.
-* Major GC: 這通常是被Minor GC間接觸發的, 主要是在回收老年代的物件, 但也有特例是可以只觸發Major GC的.
-* Full GC
+* Major GC: 這通常是被Minor GC間接觸發的, 目的是要回收老年代的物件, 但也有特例是可以只觸發Major GC的\(如Parallel Scavenge Collector\).
+* Full GC: 晉升到老年代的物件之大小若超過了老年代的剩餘記憶體空間, 就會觸發Full GC. 若你用的JDK\(JDK6u24以前\)有支援HandlePromotionFailure參數, 那也有可能因為你打開了這個參數, 而出現明明老年代空間還夠, 但還是來一發Full GC的情況\(這年頭很多公司的起手式都是Java8了, 所以...\).
 
 ### What \(哪些記憶體要被回收?\)
 

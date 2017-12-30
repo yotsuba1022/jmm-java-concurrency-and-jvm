@@ -368,7 +368,7 @@ Heap
  Metaspace       used 3297K, capacity 4112K, committed 4352K, reserved 8192K
 ```
 
-所謂的空間分配擔保機制是這樣的: **在發生Minor GC之前, JVM會先檢查老年代最大可用的連續記憶體空間是否大於新生代所有物件的總記憶體空間**, 若這個條件成立, 那麼Minor GC就可以確保是安全的. 反之, JVM就會去看**HandlePromotionFailure**的設定值, 看其是否允許擔保失敗\(**Promotion Failure**\). 如果允許, 那麼會繼續檢查老年代最大可用的連續記憶體空間是否大於**歷次晉升至老年代的物件之平均大小**, **若有大於, 就嘗試進行一次Minor GC**, 儘管這個Minor GC可能隱含著風險\(這個風險的定義等等下面會詳細說明\); **若是小於, 或著HandlePromotionFailure設置不準冒這種風險, 那這時就改成進行一次Full GC**.
+所謂的空間分配擔保機制是這樣的: **在發生Minor GC之前, JVM會先檢查老年代最大可用的連續記憶體空間是否大於新生代所有物件的總記憶體空間**, 若這個條件成立, 那麼Minor GC就可以確保是安全的. 反之, JVM就會去看**HandlePromotionFailure**的設定值**\(-XX:-HandlePromotionFailure是允許擔保失敗, 即不去handle promotion failure; -XX:+HandlePromotionFailure是不允許擔保失敗, 即要去handle promotion failure\)**, 看其是否允許擔保失敗\(**Promotion Failure**\). 如果允許, 那麼會繼續檢查老年代最大可用的連續記憶體空間是否大於**歷次晉升至老年代的物件之平均大小**, **若有大於, 就嘗試進行一次Minor GC**, 儘管這個Minor GC可能隱含著風險\(這個風險的定義等等下面會詳細說明\); **若是小於, 或著HandlePromotionFailure設置不準冒這種風險, 那這時就改成進行一次Full GC**.
 
 那風險是什麼? 我們知道新生代用的是copying演算法, 但為了記憶體的利用率, 我們只會使用兩個Survivor區塊的其中一區來作為備份, 所以**如果出現了大量物件在Minor GC後還是活著的情況下, 講極端點, 全員生還\(100%\), 這樣就要老年代來擔保, 把Survivor無法容納的物件都送進老年代去.** 這跟你去銀行貸款很像, 你的擔保人\(老年代\)要幫你擔保, 他本身口袋也要夠深\(記憶體空間要夠\), 然而, **實際會有多少物件會活下來在實際完成GC之前是不知道的, 所以只好取之前每一次回收時, 晉升到老年代的物件之容量平均大小來作為一個評估值, 並拿此評估值來與老年代的剩餘空間作比較, 看是否要發動Full GC來讓老年代釋放出更多空間.**
 
