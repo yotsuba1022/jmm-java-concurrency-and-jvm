@@ -48,12 +48,34 @@
     * **Parallel Scavenge Collector**: 採用Copying演算法, 且是平行的多執行緒collector. 其關注點是達到一個可控制的吞吐量\(Throughput\), 以便高效地運用CPU. 另外也具有自適應機制\(GC Ergonomics\)來協助使用者達到獲取最佳吞吐量的vm option可供使用\(-XX:+UserAdaptiveSizePolicy\).
   * ##### **用於老年代的collector**
 
-    * **Serial Old Collector**:
-    * **Parallel Old Collector**:
-    * **CMS Collector**:
+    * **Serial Old Collector**: 採用Mark-Compact演算法, 是Serial的老年代版本, 屬於單執行緒收集器, 一樣適用於client mode的JVM. 若是在JDK1.5之前, 可跟Parallel Scavenge搭配\(扯人家後腿用的\). 此collector也是CMS發生Concurrent Mode Failure的backup solution\(因為只剩這傢伙可以救CMS了\).
+    * **Parallel Old Collector**: 採用Mark-Compact演算法, Parallel Scavenge的老年代版本, 屬於多執行緒收集器. 在JDK6之後出現, 可以讓Parallel Scavenge免於被Serial Old扯後腿. 在注重吞吐量以及CPU資源敏感的場合就可以用Parallel Scavenge + Parallel Old的組合.
+    * **CMS Collector**: 採用Mark-Sweep演算法, 可多執行緒並發收集/低停頓. 主要關注點是希望獲得最短回收停頓時間, 就是前面提過的"**你媽在打掃的同時, 你還可以在旁邊繼續丟垃圾**". 其作業模式主要分為四步: 初始標記\(STW required\)/並發標記\(Concurrent\)/重新標記\(STW required\)/並發清除\(會產生floating garbage\). 缺點主要有: 對CPU資源敏感\(但CPU越多的話, 影響就越小.\)/無法處理浮動垃圾\(想想你媽打掃你又在那邊亂的樣子\), 可能導致Concurrent Mode Failure, 就要請Serial Old來幫忙坦一下/基於Mark-Sweep的天生缺點就是容易產生大量記憶體空間碎片, 但可透過參數設定發生Full GC時一併整理記憶體\(compact\).
   * ##### **老少通吃的collector**
 
-    * **Garbage First Collector \(G1\)**:
+    * **Garbage First Collector \(G1\)**: 採用Mark-Compact演算法, 可平行也可並發, 採用分代收集且不必跟其它collector配合\(老少通吃\)而且還能夠建立可預測的停頓時間模型. 其對記憶體空間的佈局概念也很特別: 把整個Java Heap區分為多個大小相等的Region來進行處理, 而各Region中卻還是保有新生代/老年代的概念. 回收時, 從回收CP值最高的Region開始回收以獲取盡可能高的收集效率. 其化整為零的概念會碰到不同Region間的新生代與老年代物件之間存有相依性的問題, 故這部分是透過Remembered Set來解決的\(其它collector其實也有用到這個東西\). 其作業模式主要分四步: 初始標記\(STW required\)/並發標記\(Concurrent\)/最終標記\(STW required\)/篩選回收. 缺點可參照前面提到的Mark-Compact演算法的部分, 但我自己在公司用這個覺得還滿耐操的就是了.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
