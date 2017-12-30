@@ -125,7 +125,91 @@ Heap
 
 ### 長期存活的物件將進入老年代
 
-123
+這個範例參照書上的去做已經不準確了, 因為collector的演算法有更動過了, 但還是可以透過一些奇技淫巧把它弄出來, [範例程式](https://github.com/yotsuba1022/java-concurrency/commit/254af3939eea648c35af72734e4f29945d4bb44a)如下:
+
+```java
+package idv.java.jvm.gc.memoryallocate.tenuringthreshold;
+
+/**
+ * @author Carl Lu
+ * VM args:
+ * -Xloggc:gclog-TenuringThresholdEqualsTo1Demo.log -Xms20M -Xmx20M -Xmn10M -XX:+PrintGCDetails -XX:SurvivorRatio=8 -XX:MaxTenuringThreshold=1 -XX:+PrintTenuringDistribution -XX:-UseCompressedClassPointers -XX:-UseCompressedOops -XX:+UseSerialGC
+ * -Xloggc:gclog-TenuringThresholdEqualsTo7Demo.log -Xms20M -Xmx20M -Xmn10M -XX:+PrintGCDetails -XX:SurvivorRatio=8 -XX:MaxTenuringThreshold=7 -XX:+PrintTenuringDistribution -XX:-UseCompressedClassPointers -XX:-UseCompressedOops -XX:-UseAdaptiveSizePolicy -XX:+UseParNewGC
+ */
+public class TenuringThresholdDemo {
+    private static final int _1MB = 1024 * 1024;
+
+    public static void main(String[] args) {
+        byte[] allocation1, allocation2, allocation3;
+
+        allocation1 = new byte[_1MB / 4];
+        allocation2 = new byte[4 * _1MB];
+        allocation3 = new byte[4 * _1MB];
+        allocation3 = null;
+        allocation3 = new byte[4 * _1MB];
+    }
+}
+```
+
+GC log如下:
+
+-XX:MaxTenuringThreshold=1的情況\(一次就衝進去了\):
+
+```
+Java HotSpot(TM) 64-Bit Server VM (25.152-b16) for bsd-amd64 JRE (1.8.0_152-b16), built on Sep 14 2017 02:31:13 by "java_re" with gcc 4.2.1 (Based on Apple Inc. build 5658) (LLVM build 2336.11.00)
+Memory: 4k page, physical 8388608k(229412k free)
+
+/proc/meminfo:
+
+CommandLine flags: -XX:InitialHeapSize=20971520 -XX:InitialTenuringThreshold=1 -XX:MaxHeapSize=20971520 -XX:MaxNewSize=10485760 -XX:MaxTenuringThreshold=1 -XX:NewSize=10485760 -XX:+PrintGC -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintTenuringDistribution -XX:SurvivorRatio=8 -XX:-UseCompressedClassPointers -XX:-UseCompressedOops -XX:+UseSerialGC 
+0.220: [GC (Allocation Failure) 0.220: [DefNew
+Desired survivor size 524288 bytes, new threshold 1 (max 1)
+- age   1:     972088 bytes,     972088 total
+: 6902K->949K(9216K), 0.0068881 secs] 6902K->5045K(19456K), 0.0070786 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+0.228: [GC (Allocation Failure) 0.228: [DefNew
+Desired survivor size 524288 bytes, new threshold 1 (max 1)
+- age   1:       2992 bytes,       2992 total
+: 5129K->2K(9216K), 0.0019897 secs] 9225K->5018K(19456K), 0.0020846 secs] [Times: user=0.00 sys=0.00, real=0.01 secs] 
+Heap
+ def new generation   total 9216K, used 4236K [0x0000000117200000, 0x0000000117c00000, 0x0000000117c00000)
+  eden space 8192K,  51% used [0x0000000117200000, 0x00000001176227d0, 0x0000000117a00000)
+  from space 1024K,   0% used [0x0000000117a00000, 0x0000000117a00bb0, 0x0000000117b00000)
+  to   space 1024K,   0% used [0x0000000117b00000, 0x0000000117b00000, 0x0000000117c00000)
+ tenured generation   total 10240K, used 5015K [0x0000000117c00000, 0x0000000118600000, 0x0000000118600000)
+   the space 10240K,  48% used [0x0000000117c00000, 0x00000001180e5fe8, 0x00000001180e6000, 0x0000000118600000)
+ Metaspace       used 3288K, capacity 4112K, committed 4352K, reserved 8192K
+```
+
+-XX:MaxTenuringThreshold=7的情況\(還沒到門檻的七次就衝進去了\):
+
+```
+Java HotSpot(TM) 64-Bit Server VM (25.152-b16) for bsd-amd64 JRE (1.8.0_152-b16), built on Sep 14 2017 02:31:13 by "java_re" with gcc 4.2.1 (Based on Apple Inc. build 5658) (LLVM build 2336.11.00)
+Memory: 4k page, physical 8388608k(169340k free)
+
+/proc/meminfo:
+
+CommandLine flags: -XX:InitialHeapSize=20971520 -XX:MaxHeapSize=20971520 -XX:MaxNewSize=10485760 -XX:MaxTenuringThreshold=7 -XX:NewSize=10485760 -XX:+PrintGC -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintTenuringDistribution -XX:SurvivorRatio=8 -XX:-UseAdaptiveSizePolicy -XX:-UseCompressedClassPointers -XX:-UseCompressedOops -XX:+UseParNewGC 
+0.216: [GC (Allocation Failure) 0.216: [ParNew
+Desired survivor size 524288 bytes, new threshold 1 (max 7)
+- age   1:     971880 bytes,     971880 total
+: 6902K->974K(9216K), 0.0045596 secs] 6902K->5070K(19456K), 0.0047542 secs] [Times: user=0.00 sys=0.00, real=0.01 secs] 
+0.222: [GC (Allocation Failure) 0.222: [ParNew
+Desired survivor size 524288 bytes, new threshold 7 (max 7)
+- age   1:        536 bytes,        536 total
+: 5154K->295K(9216K), 0.0008993 secs] 9250K->5338K(19456K), 0.0010252 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+Heap
+ par new generation   total 9216K, used 4529K [0x0000000102000000, 0x0000000102a00000, 0x0000000102a00000)
+  eden space 8192K,  51% used [0x0000000102000000, 0x0000000102422828, 0x0000000102800000)
+  from space 1024K,  28% used [0x0000000102800000, 0x0000000102849c80, 0x0000000102900000)
+  to   space 1024K,   0% used [0x0000000102900000, 0x0000000102900000, 0x0000000102a00000)
+ tenured generation   total 10240K, used 5043K [0x0000000102a00000, 0x0000000103400000, 0x0000000103400000)
+   the space 10240K,  49% used [0x0000000102a00000, 0x0000000102eecc00, 0x0000000102eecc00, 0x0000000103400000)
+ Metaspace       used 3289K, capacity 4112K, committed 4352K, reserved 8192K
+```
+
+這邊要討論的參數是這個:
+
+* **-XX:MaxTenuringThreshold**:  基本上, JVM會給每個物件定義年齡, **若物件在Eden出生且能熬過第一次Minor GC, 然後又能被Survivor容納的話, 就可以進入Survivor, 且此時其年齡為1.** 之後每在Survivor中熬過一次Minor GC, 就變老一歲, 而在早期的預設值中, 活到15歲的物件就可以進入老年代. 而這個參數就是用來定義這個年齡門檻的, 但...我發現這個在JDK8裡面的行為已經不太一樣了, 有興趣的請自行參考範例的commit history, 裡面有寫原因.
 
 ### 動態物件年齡判定
 
