@@ -18,7 +18,7 @@
 
 * **Major GC**: 這通常是被Minor GC間接觸發的, 目的是要回收老年代的物件, 但也有特例是可以只觸發Major GC的\(如Parallel Scavenge Collector\).
 
-* **Full GC**: **晉升到老年代的物件之大小若超過了老年代的剩餘記憶體空間, 就會觸發Full GC**. 若你用的JDK\(JDK6u24以前\)有支援HandlePromotionFailure參數, 那也有可能因為你打開了這個參數\(**-XX:+HandlePromotionFailure**\), 而出現明明老年代空間還夠, 但還是來一發Full GC的情況\(這年頭很多公司的起手式都是Java8了, 所以...\).
+* **Full GC**: **晉升到老年代的物件之大小若超過了老年代的剩餘記憶體空間, 就會觸發Full GC**. 若你用的JDK\(JDK6u24以前\)有支援HandlePromotionFailure參數, 那也有可能因為你關閉了這個參數\(**-XX:-HandlePromotionFailure**\), 而出現明明老年代空間還夠, 但還是來一發Full GC的情況\(這年頭很多公司的起手式都是Java8了, 所以...\).
 
 不過具體要在什麼時刻執行, 還是由系統來決定, 這基本上是無法預測的.
 
