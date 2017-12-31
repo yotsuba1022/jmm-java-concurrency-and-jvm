@@ -42,13 +42,9 @@ synchronized與Lock有相似的並發特性以及記憶體語意, 但Lock本身�
 
 在早期的JDK\(JDK1.6之前\)之中, 若在資源競爭不是很激烈的狀況之下, synchronized的性能基本上是比ReentrantLock要來得好的, 但在資源競爭激烈的情況下, synchronized的性能就會被ReentrantLock給海放了, 這個其實google一下"synchronized vs ReentrantLock"就可以看到很多圖表結果. 不過在JDK1.6發佈後, 這個問題基本上就慢慢被彌平了, 因為在JDK1.6之後針對synchronized加入了很多的最佳化手段. 關於這部分, 可以參考本筆記的Chapter 1-5.1 Synchronized的部分.
 
-
-
 ### 結論
 
-
-
-
+其實在當前的JDK中\(我寫這篇時是2017/12/31, 當前最新的是JDK9\), synchronized與ReentrantLock都是很不錯的選擇. 對我個人而言, synchronized的可讀性是稍微優於ReentrantLock的, 因為通常的寫法就是看你要綁個方法或是某個critical region這樣而已. 然而在使用ReentrantLock的時候, 通常都會出現try/finally區塊, 分別用於tryLock/lock/unlock這些動作, 其實也沒什麼不好, 而且它還可以讓你透過指定時間參數去決定要等多久, 這點在synchronize上是看不到的.
 
 
 
