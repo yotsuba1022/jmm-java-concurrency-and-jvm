@@ -14,5 +14,8 @@
 4. Minor GC vs Major GC vs Full GC ... Nikita Salnikov-Tarnovski  
    原文連結: [點我](https://plumbr.io/blog/garbage-collection/minor-gc-vs-major-gc-vs-full-gc)
 
+5. Java Threads and the Concurrency Utilities ... JEFF FRIESEN  
+   書籍連結: [點我](https://www.tenlong.com.tw/products/9781484216996)
+
 
 
