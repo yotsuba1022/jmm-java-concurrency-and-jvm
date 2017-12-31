@@ -103,5 +103,37 @@
 
 ### 記憶體語意\(Memory Semantics\)
 
+在接下來的JMM系列中, 會一直提到記憶體語意這個名詞, 所以我想在這邊先說明一下這個詞彙的意思, 若是在wikipedia上看, 其意思為:   
+
+
+```
+In computing and parallel processing, memory semantics refers to the process logic used to control access to shared memory locations, or at a higher level to shared variables in the presence of multiple threads or processors.
+
+Memory semantics may also be defined for transactional memory, where issues related to the interaction of transactions and locks, and user-level actions need to be defined and specified.
+```
+
+我們講中文:
+
+```
+在計算機的計算與平行處理中, 記憶體語意指的是用來控制對共享記憶體位置存取的進程邏輯. 或是在較高層級(如多執行緒與處理器)之概念中的共享變數上.
+記憶體語意也可以為事務性記憶體定義, 而當中涉及事務與鎖的互動以及使用者級別操作的問題需要被定義與指定.
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
