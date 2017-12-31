@@ -103,37 +103,17 @@
 
 ### 記憶體語意\(Memory Semantics\)
 
-在接下來的JMM系列中, 會一直提到記憶體語意這個名詞, 所以我想在這邊先說明一下這個詞彙的意思, 若是在wikipedia上看, 其意思為:   
+在接下來的JMM系列中, 會一直提到**記憶體語意**這個名詞, 所以我想在這先說明一下這個詞彙的意思, 若是在[wikipedia](https://en.wikipedia.org/wiki/Memory_semantics_%28computing%29)上看, 其意思為:
 
+> In computing and parallel processing, memory semantics refers to the process logic used to control access to shared memory locations, or at a higher level to shared variables in the presence of multiple threads or processors.
+>
+> Memory semantics may also be defined for transactional memory, where issues related to the interaction of transactions and locks, and user-level actions need to be defined and specified.
 
-```
-In computing and parallel processing, memory semantics refers to the process logic used to control access to shared memory locations, or at a higher level to shared variables in the presence of multiple threads or processors.
+讓我們講中文:
 
-Memory semantics may also be defined for transactional memory, where issues related to the interaction of transactions and locks, and user-level actions need to be defined and specified.
-```
+> 在計算機的計算與平行處理中, 記憶體語意指的是用來控制對共享記憶體位置存取的進程邏輯. 或是在較高層級\(如多執行緒與處理器\)之概念中的共享變數上.
+>
+> 記憶體語意也可以為事務性記憶體定義, 而當中涉及事務與鎖的互動以及使用者級別操作的問題需要被定義與指定.
 
-我們講中文:
-
-```
-在計算機的計算與平行處理中, 記憶體語意指的是用來控制對共享記憶體位置存取的進程邏輯. 或是在較高層級(如多執行緒與處理器)之概念中的共享變數上.
-記憶體語意也可以為事務性記憶體定義, 而當中涉及事務與鎖的互動以及使用者級別操作的問題需要被定義與指定.
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+其實這在接下來的context中還是太廣泛與抽象了一點, 所以若要再講得更白話一點的話, 個人認為你可以把記憶體語意想成是: **Java的記憶體模型, 或著說是synchronize/volatile/lock/atomic這類保留字在JVM中的實作原則, 即JVM碰到這些保留字的時候, 它會怎麼去處理記憶體層級上的互動跟一些問題.**
 
