@@ -31,7 +31,7 @@ synchronized與Lock有相似的並發特性以及記憶體語意, 但Lock本身�
 * boolean tryLock\(long time, TimeUnit unit\): 嘗試獲得鎖, 如果成功了就回傳true, 反之會根據給定的時間參數去等待鎖的釋放. 如果在限定的時間內等到了, 就獲取鎖並且回傳true, 反之回傳false\(timeout\). 
 * void unlock\(\): 釋放當前獲得的鎖
 
-### 實作層面的不同
+### 實作層面以及實作技術上的不同
 
 在實作上, synchronized與Lock也是不同的:
 
@@ -40,17 +40,11 @@ synchronized與Lock有相似的並發特性以及記憶體語意, 但Lock本身�
 
 ### 效能
 
-123
+在早期的JDK\(JDK1.6之前\)之中, 若在資源競爭不是很激烈的狀況之下, synchronized的性能基本上是比ReentrantLock要來得好的, 但在資源競爭激烈的情況下, synchronized的性能就會被ReentrantLock給海放了, 這個其實google一下"synchronized vs ReentrantLock"就可以看到很多圖表結果. 不過在JDK1.6發佈後, 這個問題基本上就慢慢被彌平了, 因為在JDK1.6之後針對synchronized加入了很多的最佳化手段. 關於這部分, 可以參考本筆記的Chapter 1-5.1 Synchronized的部分.
 
 
 
-
-
-
-
-
-
-
+### 結論
 
 
 
